@@ -6,8 +6,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState } from "react";
 import { DashboardSidebar } from "@/components/layout/DashboardSidebar";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
-import { Dashboard } from "@/pages/Dashboard";
-import { ComingSoon } from "@/pages/ComingSoon";
+import { Dashboard } from "./pages/Dashboard";
+import FileManagement from "./pages/FileManagement";
+import Reports from "./pages/Reports";
+import Users from "./pages/Users";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import { cn } from "@/lib/utils";
 
@@ -44,65 +47,29 @@ const App = () => {
                   }
                 />
                 <Route
-                  path="/archivos/subir"
+                  path="/archivos/*"
                   element={
                     <>
-                      <DashboardHeader title="Subir Archivos" />
-                      <ComingSoon title="Subir Archivos" />
+                      <DashboardHeader title="Gestión de Archivos" />
+                      <FileManagement />
                     </>
                   }
                 />
                 <Route
-                  path="/archivos/lista"
+                  path="/reportes/*"
                   element={
                     <>
-                      <DashboardHeader title="Ver Archivos" />
-                      <ComingSoon title="Gestión de Archivos" />
+                      <DashboardHeader title="Reportes" />
+                      <Reports />
                     </>
                   }
                 />
                 <Route
-                  path="/reportes/generar"
+                  path="/usuarios/*"
                   element={
                     <>
-                      <DashboardHeader title="Generar Reporte" />
-                      <ComingSoon title="Generar Reporte" />
-                    </>
-                  }
-                />
-                <Route
-                  path="/reportes/historial"
-                  element={
-                    <>
-                      <DashboardHeader title="Historial de Reportes" />
-                      <ComingSoon title="Historial de Reportes" />
-                    </>
-                  }
-                />
-                <Route
-                  path="/usuarios/lista"
-                  element={
-                    <>
-                      <DashboardHeader title="Lista de Usuarios" />
-                      <ComingSoon title="Lista de Usuarios" />
-                    </>
-                  }
-                />
-                <Route
-                  path="/usuarios/agregar"
-                  element={
-                    <>
-                      <DashboardHeader title="Agregar Usuario" />
-                      <ComingSoon title="Agregar Usuario" />
-                    </>
-                  }
-                />
-                <Route
-                  path="/usuarios/roles"
-                  element={
-                    <>
-                      <DashboardHeader title="Roles y Permisos" />
-                      <ComingSoon title="Roles y Permisos" />
+                      <DashboardHeader title="Usuarios" />
+                      <Users />
                     </>
                   }
                 />
@@ -111,7 +78,7 @@ const App = () => {
                   element={
                     <>
                       <DashboardHeader title="Configuración del Sistema" />
-                      <ComingSoon title="Configuración" />
+                      <Settings />
                     </>
                   }
                 />

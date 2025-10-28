@@ -8,95 +8,107 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Komatsu Mitsui Corporate Colors */
-    --background: 0 0% 96%;
-    --foreground: 0 0% 20%;
+    /* Blue & Gray Design System */
+    --background: 220 20% 97%;
+    --foreground: 220 15% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 20%;
+    --card-foreground: 220 15% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 20%;
+    --popover-foreground: 220 15% 20%;
 
-    /* Komatsu Dark Blue - Primary */
-    --primary: 210 100% 18%;
+    /* Blue - Primary */
+    --primary: 215 85% 45%;
     --primary-foreground: 0 0% 100%;
 
-    /* Light Gray - Secondary */
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 20%;
+    /* Gray - Secondary */
+    --secondary: 220 10% 55%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 92%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 220 15% 92%;
+    --muted-foreground: 220 10% 45%;
 
-    /* Komatsu Yellow - Accent */
-    --accent: 48 100% 50%;
-    --accent-foreground: 0 0% 20%;
+    /* Bright Blue - Accent */
+    --accent: 215 75% 55%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 210 100% 18%;
+    --border: 220 15% 85%;
+    --input: 220 15% 85%;
+    --ring: 215 85% 45%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    /* Sidebar - Komatsu Blue */
-    --sidebar-background: 210 100% 18%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 48 100% 50%;
-    --sidebar-primary-foreground: 0 0% 20%;
-    --sidebar-accent: 210 100% 22%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 210 100% 22%;
-    --sidebar-ring: 48 100% 50%;
+    /* Chart colors */
+    --chart-1: 215 85% 45%;
+    --chart-2: 220 10% 55%;
+    --chart-3: 215 75% 65%;
+    --chart-4: 220 15% 70%;
+    --chart-5: 215 65% 55%;
 
-    /* Custom Komatsu Design Tokens */
-    --komatsu-blue: 210 100% 18%;
-    --komatsu-yellow: 48 100% 50%;
-    --industrial-gray: 0 0% 45%;
+    /* Sidebar - Dark Gray & Blue */
+    --sidebar-background: 220 15% 25%;
+    --sidebar-foreground: 220 20% 95%;
+    --sidebar-primary: 215 85% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 15% 35%;
+    --sidebar-accent-foreground: 220 20% 95%;
+    --sidebar-border: 220 15% 20%;
+    --sidebar-ring: 215 85% 45%;
+
+    /* Custom Design Tokens */
+    --komatsu-blue: 215 85% 45%;
+    --komatsu-yellow: 45 95% 55%;
+    --industrial-gray: 220 10% 55%;
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(210 100% 18%), hsl(210 100% 25%));
-    --gradient-accent: linear-gradient(135deg, hsl(48 100% 50%), hsl(45 100% 45%));
+    --gradient-primary: linear-gradient(135deg, hsl(215 85% 45%), hsl(215 75% 55%));
+    --gradient-accent: linear-gradient(135deg, hsl(220 10% 55%), hsl(220 15% 65%));
     
     /* Shadows */
-    --shadow-industrial: 0 4px 20px hsla(210 100% 18% / 0.15);
-    --shadow-elevated: 0 8px 30px hsla(210 100% 18% / 0.2);
+    --shadow-industrial: 0 4px 20px hsla(215 85% 45% / 0.15);
+    --shadow-elevated: 0 8px 30px hsla(215 85% 45% / 0.2);
     
     /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
-    --background: 0 0% 10%;
-    --foreground: 0 0% 95%;
-    --card: 0 0% 12%;
-    --card-foreground: 0 0% 95%;
-    --popover: 0 0% 12%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 210 100% 18%;
+    --background: 220 20% 15%;
+    --foreground: 220 20% 95%;
+    --card: 220 18% 18%;
+    --card-foreground: 220 20% 95%;
+    --popover: 220 18% 18%;
+    --popover-foreground: 220 20% 95%;
+    --primary: 215 85% 55%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 95%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 65%;
-    --accent: 48 100% 50%;
-    --accent-foreground: 0 0% 20%;
-    --destructive: 0 62.8% 30.6%;
+    --secondary: 220 12% 45%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 220 15% 25%;
+    --muted-foreground: 220 10% 65%;
+    --accent: 215 75% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 210 100% 18%;
-    --sidebar-background: 210 100% 15%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 48 100% 50%;
-    --sidebar-primary-foreground: 0 0% 20%;
-    --sidebar-accent: 210 100% 20%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 210 100% 20%;
-    --sidebar-ring: 48 100% 50%;
+    --border: 220 15% 30%;
+    --input: 220 15% 30%;
+    --ring: 215 85% 55%;
+    --chart-1: 215 85% 55%;
+    --chart-2: 220 12% 60%;
+    --chart-3: 215 75% 70%;
+    --chart-4: 220 15% 75%;
+    --chart-5: 215 65% 65%;
+    --sidebar-background: 220 18% 20%;
+    --sidebar-foreground: 220 20% 95%;
+    --sidebar-primary: 215 85% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 15% 30%;
+    --sidebar-accent-foreground: 220 20% 95%;
+    --sidebar-border: 220 18% 15%;
+    --sidebar-ring: 215 85% 55%;
   }
 }
 
