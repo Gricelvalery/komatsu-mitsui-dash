@@ -40,6 +40,22 @@ const navigationItems: NavItem[] = [
     href: "/",
   },
   {
+    title: "Aceites",
+    icon: FileText,
+    children: [
+      {
+        title: "Subir Archivo",
+        icon: Upload,
+        href: "/aceites",
+      },
+      {
+        title: "Confiabilidad Central",
+        icon: FolderOpen,
+        href: "/aceites/analisis",
+      },
+    ],
+  },
+  {
     title: "Gestión de Archivos",
     icon: FileText,
     children: [

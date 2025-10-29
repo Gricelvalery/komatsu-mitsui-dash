@@ -7,6 +7,7 @@ import { useState } from "react";
 import { DashboardSidebar } from "@/components/layout/DashboardSidebar";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Dashboard } from "./pages/Dashboard";
+import Aceites from "./pages/Aceites";
 import FileManagement from "./pages/FileManagement";
 import Reports from "./pages/Reports";
 import Users from "./pages/Users";
@@ -43,6 +44,15 @@ const App = () => {
                     <>
                       <DashboardHeader title="Dashboard" />
                       <Dashboard />
+                    </>
+                  }
+                />
+                <Route
+                  path="/aceites/*"
+                  element={
+                    <>
+                      <DashboardHeader title="Gestión de Aceites" />
+                      <Aceites />
                     </>
                   }
                 />
