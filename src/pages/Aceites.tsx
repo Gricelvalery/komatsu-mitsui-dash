@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Upload, Search, Edit, Trash2, Plus, X, Check } from "lucide-react";
+import { Upload, Search, Edit, Trash2, Plus, X, Check, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -19,6 +19,16 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -44,6 +54,8 @@ interface AceiteRecord {
 const Aceites = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [recordToDelete, setRecordToDelete] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [currentRecord, setCurrentRecord] = useState<AceiteRecord | null>(null);
   const [records, setRecords] = useState<AceiteRecord[]>([
@@ -134,11 +146,20 @@ const Aceites = () => {
   };
 
   const handleDeleteRecord = (id: string) => {
-    setRecords(records.filter((r) => r.id !== id));
-    toast({
-      title: "✓ Registro eliminado",
-      description: "El registro se ha eliminado correctamente.",
-    });
+    setRecordToDelete(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (recordToDelete) {
+      setRecords(records.filter((r) => r.id !== recordToDelete));
+      toast({
+        title: "✓ Registro eliminado",
+        description: "El registro se ha eliminado correctamente.",
+      });
+      setRecordToDelete(null);
+    }
+    setIsDeleteDialogOpen(false);
   };
 
   const handleSaveRecord = () => {
@@ -583,6 +604,34 @@ const Aceites = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-destructive/10 rounded-full">
+                <AlertTriangle className="h-6 w-6 text-destructive" />
+              </div>
+              <AlertDialogTitle className="text-xl">
+                ¿Confirmar eliminación?
+              </AlertDialogTitle>
+            </div>
+            <AlertDialogDescription className="text-base">
+              Esta acción no se puede deshacer. El registro será eliminado permanentemente del sistema.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              Sí, eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
