@@ -15,26 +15,28 @@ interface StatsCardProps {
 
 export const StatsCard = ({ title, value, icon: Icon, trend, className }: StatsCardProps) => {
   return (
-    <Card className={cn("backdrop-blur-glass border-white/20 shadow-industrial", className)}>
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <p className="text-sm font-medium text-muted-foreground/90 mb-2">{title}</p>
-            <h3 className="text-3xl font-bold text-foreground mb-1">{value}</h3>
+    <Card className={cn("border-2 hover:border-primary transition-all duration-300 hover:shadow-lg group", className)}>
+      <CardContent className="p-8">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="bg-primary/5 p-4 rounded-2xl group-hover:bg-primary/10 transition-colors">
+              <Icon className="w-8 h-8 text-primary" />
+            </div>
             {trend && (
-              <p
+              <span
                 className={cn(
-                  "text-sm font-medium",
-                  trend.isPositive ? "text-green-600" : "text-red-600"
+                  "text-sm font-semibold px-3 py-1 rounded-full",
+                  trend.isPositive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
                 )}
               >
                 {trend.isPositive ? "+" : ""}
                 {trend.value}%
-              </p>
+              </span>
             )}
           </div>
-          <div className="bg-primary/10 p-3 rounded-lg">
-            <Icon className="w-6 h-6 text-primary" />
+          <div>
+            <p className="text-sm font-medium text-muted-foreground mb-1">{title}</p>
+            <h3 className="text-5xl font-bold text-foreground tracking-tight">{value}</h3>
           </div>
         </div>
       </CardContent>
