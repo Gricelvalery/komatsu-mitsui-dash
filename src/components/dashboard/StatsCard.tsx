@@ -1,5 +1,4 @@
 import { LucideIcon } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 interface StatsCardProps {
@@ -15,18 +14,27 @@ interface StatsCardProps {
 
 export const StatsCard = ({ title, value, icon: Icon, trend, className }: StatsCardProps) => {
   return (
-    <Card className={cn("border-2 hover:border-primary transition-all duration-300 hover:shadow-lg group", className)}>
-      <CardContent className="p-8">
+    <div className={cn(
+      "group relative rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border-2 border-white/20 hover:border-primary/50 transition-all duration-500 hover:scale-105 hover:shadow-elevated overflow-hidden",
+      className
+    )}>
+      <div className="absolute inset-0 bg-gradient-primary opacity-0 group-hover:opacity-5 transition-opacity duration-500" />
+      <div className="relative p-8">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <div className="bg-primary/5 p-4 rounded-2xl group-hover:bg-primary/10 transition-colors">
-              <Icon className="w-8 h-8 text-primary" />
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative bg-primary/10 p-4 rounded-2xl group-hover:bg-primary/20 transition-all duration-300">
+                <Icon className="w-8 h-8 text-primary group-hover:scale-110 transition-transform duration-300" />
+              </div>
             </div>
             {trend && (
               <span
                 className={cn(
-                  "text-sm font-semibold px-3 py-1 rounded-full",
-                  trend.isPositive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                  "text-sm font-semibold px-3 py-1 rounded-full backdrop-blur-sm",
+                  trend.isPositive 
+                    ? "bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/30" 
+                    : "bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/30"
                 )}
               >
                 {trend.isPositive ? "+" : ""}
@@ -35,11 +43,13 @@ export const StatsCard = ({ title, value, icon: Icon, trend, className }: StatsC
             )}
           </div>
           <div>
-            <p className="text-sm font-medium text-muted-foreground mb-1">{title}</p>
-            <h3 className="text-5xl font-bold text-foreground tracking-tight">{value}</h3>
+            <p className="text-sm font-medium text-muted-foreground mb-2">{title}</p>
+            <h3 className="text-5xl font-bold text-foreground tracking-tight group-hover:text-primary transition-colors duration-300">
+              {value}
+            </h3>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
