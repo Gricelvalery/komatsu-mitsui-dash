@@ -9,11 +9,26 @@ const DashboardButtonsOption1 = ({ activeTab, onTabChange }: { activeTab: string
   ];
 
   const rTabs = [
-    { id: "R112", label: "R112" },
-    { id: "R113", label: "R113" },
-    { id: "R114", label: "R114" },
-    { id: "R115", label: "R115" },
-    { id: "R116", label: "R116" },
+    { id: "R112", label: "R112 - Extracción Mineral Primario" },
+    { id: "R113", label: "R113 - Transporte de Material" },
+    { id: "R114", label: "R114 - Procesamiento y Trituración" },
+    { id: "R115", label: "R115 - Control de Calidad" },
+    { id: "R116", label: "R116 - Gestión de Inventarios" },
+    { id: "R117", label: "R117 - Mantenimiento Preventivo" },
+    { id: "R118", label: "R118 - Seguridad y Medio Ambiente" },
+    { id: "R119", label: "R119 - Logística y Distribución" },
+    { id: "R120", label: "R120 - Recursos Humanos" },
+    { id: "R121", label: "R121 - Análisis Financiero" },
+    { id: "R122", label: "R122 - Producción General" },
+    { id: "R123", label: "R123 - Eficiencia Operativa" },
+    { id: "R124", label: "R124 - Costos Operacionales" },
+    { id: "R125", label: "R125 - Indicadores de Rendimiento" },
+    { id: "R126", label: "R126 - Consumo Energético" },
+    { id: "R127", label: "R127 - Gestión de Residuos" },
+    { id: "R128", label: "R128 - Planificación Estratégica" },
+    { id: "R129", label: "R129 - Cumplimiento Normativo" },
+    { id: "R130", label: "R130 - Innovación y Mejora" },
+    { id: "R131", label: "R131 - Reportes Ejecutivos" },
   ];
 
   return (
@@ -43,21 +58,21 @@ const DashboardButtonsOption1 = ({ activeTab, onTabChange }: { activeTab: string
         ))}
       </div>
 
-      {/* R Tabs como badges con animación */}
-      <div className="flex gap-3 justify-center flex-wrap">
+      {/* R Tabs en grid responsive */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
         {rTabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
             className={`
-              relative px-6 py-3 rounded-lg backdrop-blur-md border transition-all duration-300
+              relative px-4 py-3 rounded-lg backdrop-blur-md border transition-all duration-300
               ${activeTab === tab.id 
                 ? 'bg-primary text-primary-foreground border-primary shadow-industrial' 
                 : 'bg-background/50 border-border hover:border-primary/50 hover:bg-primary/10'
               }
             `}
           >
-            <span className="text-sm font-medium">{tab.label}</span>
+            <span className="text-xs font-medium line-clamp-2 text-left">{tab.label}</span>
           </button>
         ))}
       </div>
@@ -73,11 +88,26 @@ const DashboardButtonsOption2 = ({ activeTab, onTabChange }: { activeTab: string
   ];
 
   const rTabs = [
-    { id: "R112", label: "R112" },
-    { id: "R113", label: "R113" },
-    { id: "R114", label: "R114" },
-    { id: "R115", label: "R115" },
-    { id: "R116", label: "R116" },
+    { id: "R112", label: "R112 - Extracción Mineral Primario" },
+    { id: "R113", label: "R113 - Transporte de Material" },
+    { id: "R114", label: "R114 - Procesamiento y Trituración" },
+    { id: "R115", label: "R115 - Control de Calidad" },
+    { id: "R116", label: "R116 - Gestión de Inventarios" },
+    { id: "R117", label: "R117 - Mantenimiento Preventivo" },
+    { id: "R118", label: "R118 - Seguridad y Medio Ambiente" },
+    { id: "R119", label: "R119 - Logística y Distribución" },
+    { id: "R120", label: "R120 - Recursos Humanos" },
+    { id: "R121", label: "R121 - Análisis Financiero" },
+    { id: "R122", label: "R122 - Producción General" },
+    { id: "R123", label: "R123 - Eficiencia Operativa" },
+    { id: "R124", label: "R124 - Costos Operacionales" },
+    { id: "R125", label: "R125 - Indicadores de Rendimiento" },
+    { id: "R126", label: "R126 - Consumo Energético" },
+    { id: "R127", label: "R127 - Gestión de Residuos" },
+    { id: "R128", label: "R128 - Planificación Estratégica" },
+    { id: "R129", label: "R129 - Cumplimiento Normativo" },
+    { id: "R130", label: "R130 - Innovación y Mejora" },
+    { id: "R131", label: "R131 - Reportes Ejecutivos" },
   ];
 
   return (
@@ -106,28 +136,30 @@ const DashboardButtonsOption2 = ({ activeTab, onTabChange }: { activeTab: string
         </div>
       </div>
 
-      {/* Pills con hover elevado */}
-      <div className="flex gap-2 justify-center flex-wrap">
-        {rTabs.map((tab, index) => (
-          <button
-            key={tab.id}
-            onClick={() => onTabChange(tab.id)}
-            style={{ animationDelay: `${index * 50}ms` }}
-            className={`
-              group relative px-5 py-2.5 rounded-full font-medium text-sm
-              transition-all duration-300 animate-fade-in
-              ${activeTab === tab.id 
-                ? 'bg-gradient-primary text-primary-foreground shadow-elevated scale-105' 
-                : 'bg-card border border-border hover:border-primary hover:shadow-industrial hover:scale-105'
-              }
-            `}
-          >
-            <span className="relative z-10">{tab.label}</span>
-            {activeTab !== tab.id && (
-              <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full" />
-            )}
-          </button>
-        ))}
+      {/* Grid compacto con scroll */}
+      <div className="max-w-6xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
+          {rTabs.map((tab, index) => (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              style={{ animationDelay: `${index * 30}ms` }}
+              className={`
+                group relative px-3 py-2.5 rounded-lg font-medium text-xs
+                transition-all duration-300 animate-fade-in
+                ${activeTab === tab.id 
+                  ? 'bg-gradient-primary text-primary-foreground shadow-elevated' 
+                  : 'bg-card border border-border hover:border-primary hover:shadow-industrial hover:scale-[1.02]'
+                }
+              `}
+            >
+              <span className="relative z-10 line-clamp-2 text-left">{tab.label}</span>
+              {activeTab !== tab.id && (
+                <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
+              )}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -146,6 +178,21 @@ export const KpisAntapaccay = () => {
     R114: "https://app.powerbi.com/view?r=R114_EXAMPLE",
     R115: "https://app.powerbi.com/view?r=R115_EXAMPLE",
     R116: "https://app.powerbi.com/view?r=R116_EXAMPLE",
+    R117: "https://app.powerbi.com/view?r=R117_EXAMPLE",
+    R118: "https://app.powerbi.com/view?r=R118_EXAMPLE",
+    R119: "https://app.powerbi.com/view?r=R119_EXAMPLE",
+    R120: "https://app.powerbi.com/view?r=R120_EXAMPLE",
+    R121: "https://app.powerbi.com/view?r=R121_EXAMPLE",
+    R122: "https://app.powerbi.com/view?r=R122_EXAMPLE",
+    R123: "https://app.powerbi.com/view?r=R123_EXAMPLE",
+    R124: "https://app.powerbi.com/view?r=R124_EXAMPLE",
+    R125: "https://app.powerbi.com/view?r=R125_EXAMPLE",
+    R126: "https://app.powerbi.com/view?r=R126_EXAMPLE",
+    R127: "https://app.powerbi.com/view?r=R127_EXAMPLE",
+    R128: "https://app.powerbi.com/view?r=R128_EXAMPLE",
+    R129: "https://app.powerbi.com/view?r=R129_EXAMPLE",
+    R130: "https://app.powerbi.com/view?r=R130_EXAMPLE",
+    R131: "https://app.powerbi.com/view?r=R131_EXAMPLE",
   };
 
   return (
