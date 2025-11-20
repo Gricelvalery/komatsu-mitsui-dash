@@ -16,6 +16,7 @@ import {
   Shield,
   Menu,
   X,
+  TrendingUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -38,6 +39,17 @@ const navigationItems: NavItem[] = [
     title: "Inicio",
     icon: LayoutDashboard,
     href: "/",
+  },
+  {
+    title: "KPI",
+    icon: TrendingUp,
+    children: [
+      {
+        title: "KPIs Antapaccay",
+        icon: BarChart3,
+        href: "/kpi/antapaccay",
+      },
+    ],
   },
   {
     title: "Aceites",
