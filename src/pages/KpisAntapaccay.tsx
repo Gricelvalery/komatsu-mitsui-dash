@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, ChevronDown, ChevronRight, Factory, TrendingUp, Settings, Shield, Truck, Package, Wrench, Zap, FileText } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // Opción 1: Botones con Glassmorphism y Iconos
 const DashboardButtonsOption1 = ({ activeTab, onTabChange }: { activeTab: string; onTabChange: (tab: string) => void }) => {
@@ -165,9 +166,236 @@ const DashboardButtonsOption2 = ({ activeTab, onTabChange }: { activeTab: string
   );
 };
 
+// Opción 3: Sidebar con Categorías Expandibles
+const DashboardButtonsOption3 = ({ activeTab, onTabChange }: { activeTab: string; onTabChange: (tab: string) => void }) => {
+  const tabs = [
+    { id: "ANTAPACCAY", label: "ANTAPACCAY" },
+    { id: "GU14ONE", label: "GU14ONE" },
+  ];
+
+  const categories = [
+    {
+      id: "operaciones",
+      label: "Operaciones Mineras",
+      icon: Factory,
+      items: [
+        { id: "R112", label: "Extracción Mineral Primario" },
+        { id: "R113", label: "Transporte de Material" },
+        { id: "R114", label: "Procesamiento y Trituración" },
+      ]
+    },
+    {
+      id: "control",
+      label: "Control y Calidad",
+      icon: Shield,
+      items: [
+        { id: "R115", label: "Control de Calidad" },
+        { id: "R116", label: "Gestión de Inventarios" },
+        { id: "R125", label: "Indicadores de Rendimiento" },
+      ]
+    },
+    {
+      id: "logistica",
+      label: "Logística y Mantenimiento",
+      icon: Truck,
+      items: [
+        { id: "R117", label: "Mantenimiento Preventivo" },
+        { id: "R119", label: "Logística y Distribución" },
+      ]
+    },
+    {
+      id: "seguridad",
+      label: "Seguridad y Ambiente",
+      icon: Settings,
+      items: [
+        { id: "R118", label: "Seguridad y Medio Ambiente" },
+        { id: "R127", label: "Gestión de Residuos" },
+        { id: "R129", label: "Cumplimiento Normativo" },
+      ]
+    },
+    {
+      id: "gestion",
+      label: "Gestión Empresarial",
+      icon: TrendingUp,
+      items: [
+        { id: "R120", label: "Recursos Humanos" },
+        { id: "R121", label: "Análisis Financiero" },
+        { id: "R124", label: "Costos Operacionales" },
+      ]
+    },
+    {
+      id: "produccion",
+      label: "Producción y Eficiencia",
+      icon: Zap,
+      items: [
+        { id: "R122", label: "Producción General" },
+        { id: "R123", label: "Eficiencia Operativa" },
+        { id: "R126", label: "Consumo Energético" },
+      ]
+    },
+    {
+      id: "estrategia",
+      label: "Estrategia y Reportes",
+      icon: FileText,
+      items: [
+        { id: "R128", label: "Planificación Estratégica" },
+        { id: "R130", label: "Innovación y Mejora" },
+        { id: "R131", label: "Reportes Ejecutivos" },
+      ]
+    }
+  ];
+
+  const [expandedCategories, setExpandedCategories] = useState<string[]>(["operaciones"]);
+
+  const toggleCategory = (categoryId: string) => {
+    setExpandedCategories(prev => 
+      prev.includes(categoryId) 
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
+
+  const powerBiUrls: Record<string, string> = {
+    ANTAPACCAY: "https://app.powerbi.com/view?r=ANTAPACCAY_EXAMPLE",
+    GU14ONE: "https://app.powerbi.com/view?r=GU14ONE_EXAMPLE",
+    R112: "https://app.powerbi.com/view?r=R112_EXAMPLE",
+    R113: "https://app.powerbi.com/view?r=R113_EXAMPLE",
+    R114: "https://app.powerbi.com/view?r=R114_EXAMPLE",
+    R115: "https://app.powerbi.com/view?r=R115_EXAMPLE",
+    R116: "https://app.powerbi.com/view?r=R116_EXAMPLE",
+    R117: "https://app.powerbi.com/view?r=R117_EXAMPLE",
+    R118: "https://app.powerbi.com/view?r=R118_EXAMPLE",
+    R119: "https://app.powerbi.com/view?r=R119_EXAMPLE",
+    R120: "https://app.powerbi.com/view?r=R120_EXAMPLE",
+    R121: "https://app.powerbi.com/view?r=R121_EXAMPLE",
+    R122: "https://app.powerbi.com/view?r=R122_EXAMPLE",
+    R123: "https://app.powerbi.com/view?r=R123_EXAMPLE",
+    R124: "https://app.powerbi.com/view?r=R124_EXAMPLE",
+    R125: "https://app.powerbi.com/view?r=R125_EXAMPLE",
+    R126: "https://app.powerbi.com/view?r=R126_EXAMPLE",
+    R127: "https://app.powerbi.com/view?r=R127_EXAMPLE",
+    R128: "https://app.powerbi.com/view?r=R128_EXAMPLE",
+    R129: "https://app.powerbi.com/view?r=R129_EXAMPLE",
+    R130: "https://app.powerbi.com/view?r=R130_EXAMPLE",
+    R131: "https://app.powerbi.com/view?r=R131_EXAMPLE",
+  };
+
+  return (
+    <div className="flex h-screen overflow-hidden">
+      {/* Sidebar */}
+      <div className="w-80 border-r border-border bg-card/50 backdrop-blur-sm flex flex-col overflow-hidden">
+        {/* Sidebar Header */}
+        <div className="p-4 border-b border-border">
+          <h2 className="text-lg font-semibold text-foreground mb-4">Dashboards</h2>
+          
+          {/* Main tabs */}
+          <div className="space-y-2">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => onTabChange(tab.id)}
+                className={cn(
+                  "w-full px-4 py-2.5 rounded-lg flex items-center gap-3 transition-all duration-200",
+                  activeTab === tab.id
+                    ? "bg-primary text-primary-foreground shadow-lg"
+                    : "bg-background/50 hover:bg-muted text-foreground"
+                )}
+              >
+                <BarChart3 className="h-5 w-5" />
+                <span className="font-medium">{tab.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Sidebar Content - Scrollable */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+          {categories.map((category) => {
+            const isExpanded = expandedCategories.includes(category.id);
+            const Icon = category.icon;
+            
+            return (
+              <div key={category.id} className="space-y-1">
+                {/* Category Header */}
+                <button
+                  onClick={() => toggleCategory(category.id)}
+                  className="w-full px-3 py-2 rounded-lg flex items-center justify-between gap-2 hover:bg-muted/50 transition-colors group"
+                >
+                  <div className="flex items-center gap-2">
+                    <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <span className="text-sm font-medium text-foreground">{category.label}</span>
+                  </div>
+                  {isExpanded ? (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </button>
+
+                {/* Category Items */}
+                {isExpanded && (
+                  <div className="ml-6 space-y-1 animate-fade-in">
+                    {category.items.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => onTabChange(item.id)}
+                        className={cn(
+                          "w-full px-3 py-2 rounded-md text-left text-sm transition-all duration-200",
+                          activeTab === item.id
+                            ? "bg-primary/10 text-primary font-medium border-l-2 border-primary"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
+                        )}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Content Header */}
+        <div className="border-b border-border bg-card/50 backdrop-blur-sm p-6">
+          <h1 className="text-3xl font-bold text-foreground">
+            KPIs Antapaccay
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Dashboard: {activeTab}
+          </p>
+        </div>
+
+        {/* Dashboard Content */}
+        <div className="flex-1 overflow-auto p-6 bg-gradient-to-br from-background via-background to-primary/5">
+          <div className="bg-card rounded-2xl shadow-elevated overflow-hidden animate-fade-in h-full">
+            <div className="h-full bg-muted/20 flex items-center justify-center">
+              {/* Power BI Embed iframe */}
+              <div className="text-center space-y-4">
+                <BarChart3 className="h-16 w-16 text-primary mx-auto" />
+                <div>
+                  <p className="text-lg font-semibold text-foreground mb-2">
+                    Dashboard: {activeTab}
+                  </p>
+                  <p className="text-sm text-muted-foreground max-w-md">
+                    Aquí se mostrará el dashboard de Power BI embebido.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const KpisAntapaccay = () => {
   const [activeTab, setActiveTab] = useState("ANTAPACCAY");
-  const [viewOption, setViewOption] = useState<1 | 2>(1);
+  const [viewOption, setViewOption] = useState<1 | 2 | 3>(1);
 
   // URLs de ejemplo para Power BI embeds
   const powerBiUrls: Record<string, string> = {
@@ -194,6 +422,11 @@ export const KpisAntapaccay = () => {
     R130: "https://app.powerbi.com/view?r=R130_EXAMPLE",
     R131: "https://app.powerbi.com/view?r=R131_EXAMPLE",
   };
+
+  // Si es opción 3, usar el diseño completo con sidebar
+  if (viewOption === (3 as 1 | 2 | 3)) {
+    return <DashboardButtonsOption3 activeTab={activeTab} onTabChange={setActiveTab} />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
@@ -227,6 +460,14 @@ export const KpisAntapaccay = () => {
                 }`}
               >
                 Opción 2
+              </button>
+              <button
+                onClick={() => setViewOption(3 as 1 | 2 | 3)}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                  viewOption === 3 ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted'
+                }`}
+              >
+                Opción 3
               </button>
             </div>
           </div>
