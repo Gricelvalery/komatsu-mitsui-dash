@@ -7,6 +7,7 @@ import { useState } from "react";
 import { DashboardSidebar } from "@/components/layout/DashboardSidebar";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Dashboard } from "./pages/Dashboard";
+import { KpisAntapaccay } from "./pages/KpisAntapaccay";
 import Aceites from "./pages/Aceites";
 import FileManagement from "./pages/FileManagement";
 import Reports from "./pages/Reports";
@@ -44,6 +45,15 @@ const App = () => {
                     <>
                       <DashboardHeader title="Dashboard" />
                       <Dashboard />
+                    </>
+                  }
+                />
+                <Route
+                  path="/kpi/antapaccay"
+                  element={
+                    <>
+                      <DashboardHeader title="KPIs Antapaccay" />
+                      <KpisAntapaccay />
                     </>
                   }
                 />
