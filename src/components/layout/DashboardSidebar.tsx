@@ -17,6 +17,8 @@ import {
   Menu,
   X,
   TrendingUp,
+  Database,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -48,6 +50,32 @@ const navigationItems: NavItem[] = [
         title: "KPIs Antapaccay",
         icon: BarChart3,
         href: "/kpi/antapaccay",
+      },
+    ],
+  },
+  {
+    title: "PLM",
+    icon: Database,
+    children: [
+      {
+        title: "Descargar Data",
+        icon: Download,
+        href: "/plm",
+      },
+      {
+        title: "Subir Archivo",
+        icon: Upload,
+        href: "/plm",
+      },
+      {
+        title: "Info Data",
+        icon: Database,
+        href: "/plm",
+      },
+      {
+        title: "Reporte PLM",
+        icon: FileBarChart,
+        href: "/plm",
       },
     ],
   },
