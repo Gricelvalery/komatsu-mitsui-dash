@@ -393,9 +393,189 @@ const DashboardButtonsOption3 = ({ activeTab, onTabChange }: { activeTab: string
   );
 };
 
+// Opción 4: Lista Vertical Compacta con Iconos y Badges
+const DashboardButtonsOption4 = ({ activeTab, onTabChange }: { activeTab: string; onTabChange: (tab: string) => void }) => {
+  const tabs = [
+    { id: "ANTAPACCAY", label: "ANTAPACCAY" },
+    { id: "GU14ONE", label: "GU14ONE" },
+  ];
+
+  const rTabs = [
+    { id: "R112", label: "R112 - Extracción Mineral Primario", icon: Factory },
+    { id: "R113", label: "R113 - Transporte de Material", icon: Truck },
+    { id: "R114", label: "R114 - Procesamiento y Trituración", icon: Settings },
+    { id: "R115", label: "R115 - Control de Calidad", icon: Shield },
+    { id: "R116", label: "R116 - Gestión de Inventarios", icon: Package },
+    { id: "R117", label: "R117 - Mantenimiento Preventivo", icon: Wrench },
+    { id: "R118", label: "R118 - Seguridad y Medio Ambiente", icon: Shield },
+    { id: "R119", label: "R119 - Logística y Distribución", icon: Truck },
+    { id: "R120", label: "R120 - Recursos Humanos", icon: Settings },
+    { id: "R121", label: "R121 - Análisis Financiero", icon: TrendingUp },
+    { id: "R122", label: "R122 - Producción General", icon: Factory },
+    { id: "R123", label: "R123 - Eficiencia Operativa", icon: Zap },
+    { id: "R124", label: "R124 - Costos Operacionales", icon: TrendingUp },
+    { id: "R125", label: "R125 - Indicadores de Rendimiento", icon: BarChart3 },
+    { id: "R126", label: "R126 - Consumo Energético", icon: Zap },
+    { id: "R127", label: "R127 - Gestión de Residuos", icon: Package },
+    { id: "R128", label: "R128 - Planificación Estratégica", icon: FileText },
+    { id: "R129", label: "R129 - Cumplimiento Normativo", icon: Shield },
+    { id: "R130", label: "R130 - Innovación y Mejora", icon: TrendingUp },
+    { id: "R131", label: "R131 - Reportes Ejecutivos", icon: FileText },
+  ];
+
+  return (
+    <div className="space-y-4">
+      {/* Tabs principales con diseño pill */}
+      <div className="flex gap-2 justify-center">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => onTabChange(tab.id)}
+            className={cn(
+              "relative px-6 py-2.5 rounded-full font-semibold text-sm transition-all duration-300",
+              activeTab === tab.id
+                ? "bg-gradient-primary text-primary-foreground shadow-elevated scale-105"
+                : "bg-card border border-border hover:border-primary hover:scale-105"
+            )}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Lista vertical con scroll */}
+      <div className="max-w-4xl mx-auto max-h-96 overflow-y-auto space-y-2 px-4">
+        {rTabs.map((tab, index) => {
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              style={{ animationDelay: `${index * 20}ms` }}
+              className={cn(
+                "w-full group relative flex items-center gap-4 px-5 py-3 rounded-xl transition-all duration-300 animate-fade-in",
+                activeTab === tab.id
+                  ? "bg-gradient-primary text-primary-foreground shadow-elevated scale-[1.02]"
+                  : "bg-card border border-border hover:border-primary hover:shadow-industrial hover:scale-[1.01]"
+              )}
+            >
+              <Icon className={cn(
+                "h-5 w-5 flex-shrink-0",
+                activeTab === tab.id ? "text-primary-foreground" : "text-primary"
+              )} />
+              <span className="text-left text-sm font-medium flex-1">{tab.label}</span>
+              {activeTab === tab.id && (
+                <div className="h-2 w-2 rounded-full bg-primary-foreground animate-pulse" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// Opción 5: Diseño de Tarjetas con Hover Reveal
+const DashboardButtonsOption5 = ({ activeTab, onTabChange }: { activeTab: string; onTabChange: (tab: string) => void }) => {
+  const tabs = [
+    { id: "ANTAPACCAY", label: "ANTAPACCAY" },
+    { id: "GU14ONE", label: "GU14ONE" },
+  ];
+
+  const rTabs = [
+    { id: "R112", label: "Extracción Mineral Primario", code: "R112", icon: Factory, color: "from-blue-500 to-cyan-500" },
+    { id: "R113", label: "Transporte de Material", code: "R113", icon: Truck, color: "from-green-500 to-emerald-500" },
+    { id: "R114", label: "Procesamiento y Trituración", code: "R114", icon: Settings, color: "from-orange-500 to-amber-500" },
+    { id: "R115", label: "Control de Calidad", code: "R115", icon: Shield, color: "from-purple-500 to-violet-500" },
+    { id: "R116", label: "Gestión de Inventarios", code: "R116", icon: Package, color: "from-pink-500 to-rose-500" },
+    { id: "R117", label: "Mantenimiento Preventivo", code: "R117", icon: Wrench, color: "from-yellow-500 to-orange-500" },
+    { id: "R118", label: "Seguridad y Medio Ambiente", code: "R118", icon: Shield, color: "from-teal-500 to-cyan-500" },
+    { id: "R119", label: "Logística y Distribución", code: "R119", icon: Truck, color: "from-indigo-500 to-blue-500" },
+    { id: "R120", label: "Recursos Humanos", code: "R120", icon: Settings, color: "from-red-500 to-pink-500" },
+    { id: "R121", label: "Análisis Financiero", code: "R121", icon: TrendingUp, color: "from-lime-500 to-green-500" },
+    { id: "R122", label: "Producción General", code: "R122", icon: Factory, color: "from-cyan-500 to-blue-500" },
+    { id: "R123", label: "Eficiencia Operativa", code: "R123", icon: Zap, color: "from-amber-500 to-yellow-500" },
+    { id: "R124", label: "Costos Operacionales", code: "R124", icon: TrendingUp, color: "from-violet-500 to-purple-500" },
+    { id: "R125", label: "Indicadores de Rendimiento", code: "R125", icon: BarChart3, color: "from-rose-500 to-pink-500" },
+    { id: "R126", label: "Consumo Energético", code: "R126", icon: Zap, color: "from-emerald-500 to-teal-500" },
+    { id: "R127", label: "Gestión de Residuos", code: "R127", icon: Package, color: "from-orange-500 to-red-500" },
+    { id: "R128", label: "Planificación Estratégica", code: "R128", icon: FileText, color: "from-blue-500 to-indigo-500" },
+    { id: "R129", label: "Cumplimiento Normativo", code: "R129", icon: Shield, color: "from-green-500 to-lime-500" },
+    { id: "R130", label: "Innovación y Mejora", code: "R130", icon: TrendingUp, color: "from-purple-500 to-pink-500" },
+    { id: "R131", label: "Reportes Ejecutivos", code: "R131", icon: FileText, color: "from-cyan-500 to-teal-500" },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Tabs principales con efecto deslizante */}
+      <div className="flex gap-3 justify-center">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => onTabChange(tab.id)}
+            className={cn(
+              "relative overflow-hidden px-8 py-3 rounded-lg font-bold text-sm transition-all duration-300",
+              activeTab === tab.id
+                ? "bg-primary text-primary-foreground shadow-lg scale-105"
+                : "bg-card border-2 border-border hover:border-primary"
+            )}
+          >
+            <span className="relative z-10">{tab.label}</span>
+            {activeTab === tab.id && (
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Grid de tarjetas con gradientes */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        {rTabs.map((tab, index) => {
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              style={{ animationDelay: `${index * 25}ms` }}
+              className={cn(
+                "group relative overflow-hidden rounded-xl transition-all duration-500 animate-fade-in aspect-square",
+                activeTab === tab.id
+                  ? "shadow-elevated scale-105"
+                  : "shadow-md hover:shadow-elevated hover:scale-105"
+              )}
+            >
+              {/* Fondo con gradiente */}
+              <div className={cn(
+                "absolute inset-0 bg-gradient-to-br opacity-90 transition-opacity duration-300",
+                tab.color,
+                activeTab === tab.id ? "opacity-100" : "opacity-70 group-hover:opacity-90"
+              )} />
+              
+              {/* Contenido */}
+              <div className="relative h-full flex flex-col items-center justify-center p-4 text-white">
+                <Icon className="h-8 w-8 mb-2 transition-transform duration-300 group-hover:scale-110" />
+                <span className="text-xs font-bold mb-1">{tab.code}</span>
+                <span className="text-xs text-center line-clamp-2 opacity-90">{tab.label}</span>
+              </div>
+
+              {/* Brillo en hover */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              
+              {/* Indicador activo */}
+              {activeTab === tab.id && (
+                <div className="absolute top-2 right-2 h-3 w-3 rounded-full bg-white shadow-lg animate-pulse" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 export const KpisAntapaccay = () => {
   const [activeTab, setActiveTab] = useState("ANTAPACCAY");
-  const [viewOption, setViewOption] = useState<1 | 2 | 3>(1);
+  const [viewOption, setViewOption] = useState<1 | 2 | 3 | 4 | 5>(1);
 
   // URLs de ejemplo para Power BI embeds
   const powerBiUrls: Record<string, string> = {
@@ -424,7 +604,7 @@ export const KpisAntapaccay = () => {
   };
 
   // Si es opción 3, usar el diseño completo con sidebar
-  if (viewOption === (3 as 1 | 2 | 3)) {
+  if (viewOption === 3) {
     return <DashboardButtonsOption3 activeTab={activeTab} onTabChange={setActiveTab} />;
   }
 
@@ -445,39 +625,25 @@ export const KpisAntapaccay = () => {
             
             {/* Selector de opciones */}
             <div className="flex gap-2 p-1 rounded-lg bg-muted/30">
-              <button
-                onClick={() => setViewOption(1)}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                  viewOption === 1 ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted'
-                }`}
-              >
-                Opción 1
-              </button>
-              <button
-                onClick={() => setViewOption(2)}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                  viewOption === 2 ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted'
-                }`}
-              >
-                Opción 2
-              </button>
-              <button
-                onClick={() => setViewOption(3 as 1 | 2 | 3)}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                  viewOption === 3 ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted'
-                }`}
-              >
-                Opción 3
-              </button>
+              {[1, 2, 3, 4, 5].map((option) => (
+                <button
+                  key={option}
+                  onClick={() => setViewOption(option as 1 | 2 | 3 | 4 | 5)}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                    viewOption === option ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted'
+                  }`}
+                >
+                  Opción {option}
+                </button>
+              ))}
             </div>
           </div>
 
           {/* Botones de navegación */}
-          {viewOption === 1 ? (
-            <DashboardButtonsOption1 activeTab={activeTab} onTabChange={setActiveTab} />
-          ) : (
-            <DashboardButtonsOption2 activeTab={activeTab} onTabChange={setActiveTab} />
-          )}
+          {viewOption === 1 && <DashboardButtonsOption1 activeTab={activeTab} onTabChange={setActiveTab} />}
+          {viewOption === 2 && <DashboardButtonsOption2 activeTab={activeTab} onTabChange={setActiveTab} />}
+          {viewOption === 4 && <DashboardButtonsOption4 activeTab={activeTab} onTabChange={setActiveTab} />}
+          {viewOption === 5 && <DashboardButtonsOption5 activeTab={activeTab} onTabChange={setActiveTab} />}
         </div>
       </div>
 

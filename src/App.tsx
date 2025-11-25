@@ -8,6 +8,7 @@ import { DashboardSidebar } from "@/components/layout/DashboardSidebar";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Dashboard } from "./pages/Dashboard";
 import { KpisAntapaccay } from "./pages/KpisAntapaccay";
+import { Plm } from "./pages/Plm";
 import Aceites from "./pages/Aceites";
 import FileManagement from "./pages/FileManagement";
 import Reports from "./pages/Reports";
@@ -54,6 +55,15 @@ const App = () => {
                     <>
                       <DashboardHeader title="KPIs Antapaccay" />
                       <KpisAntapaccay />
+                    </>
+                  }
+                />
+                <Route
+                  path="/plm"
+                  element={
+                    <>
+                      <DashboardHeader title="Gestión PLM" />
+                      <Plm />
                     </>
                   }
                 />
