@@ -10,6 +10,7 @@ import { Dashboard } from "./pages/Dashboard";
 import { KpisAntapaccay } from "./pages/KpisAntapaccay";
 import { Plm } from "./pages/Plm";
 import Aceites from "./pages/Aceites";
+import Quellaveco from "./pages/Quellaveco";
 import FileManagement from "./pages/FileManagement";
 import Reports from "./pages/Reports";
 import Users from "./pages/Users";
@@ -75,6 +76,10 @@ const App = () => {
                       <Aceites />
                     </>
                   }
+                />
+                <Route
+                  path="/aceites/quellaveco"
+                  element={<Quellaveco />}
                 />
                 <Route
                   path="/archivos/*"
