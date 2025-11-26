@@ -93,6 +93,11 @@ const navigationItems: NavItem[] = [
         icon: FolderOpen,
         href: "/aceites/analisis",
       },
+      {
+        title: "Quellaveco",
+        icon: Database,
+        href: "/aceites/quellaveco",
+      },
     ],
   },
   {
