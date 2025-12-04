@@ -11,6 +11,7 @@ import { KpisAntapaccay } from "./pages/KpisAntapaccay";
 import { Plm } from "./pages/Plm";
 import Aceites from "./pages/Aceites";
 import Quellaveco from "./pages/Quellaveco";
+import GerenciaReporte from "./pages/GerenciaReporte";
 import FileManagement from "./pages/FileManagement";
 import Reports from "./pages/Reports";
 import Users from "./pages/Users";
@@ -105,6 +106,15 @@ const App = () => {
                     <>
                       <DashboardHeader title="Usuarios" />
                       <Users />
+                    </>
+                  }
+                />
+                <Route
+                  path="/gerencia/reporte"
+                  element={
+                    <>
+                      <DashboardHeader title="Gerencia - Reporte de Proyectos" />
+                      <GerenciaReporte />
                     </>
                   }
                 />

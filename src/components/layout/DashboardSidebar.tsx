@@ -19,6 +19,8 @@ import {
   TrendingUp,
   Database,
   Download,
+  Briefcase,
+  ClipboardList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -129,6 +131,17 @@ const navigationItems: NavItem[] = [
         title: "Historial",
         icon: History,
         href: "/reportes/historial",
+      },
+    ],
+  },
+  {
+    title: "Gerencia",
+    icon: Briefcase,
+    children: [
+      {
+        title: "Reporte",
+        icon: ClipboardList,
+        href: "/gerencia/reporte",
       },
     ],
   },
