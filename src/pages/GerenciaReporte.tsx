@@ -446,19 +446,19 @@ const CategoryRow = ({ category, isExpanded, onToggle }: CategoryRowProps) => {
                     <div
                       key={project}
                       className={cn(
-                        "p-1.5 border-l border-border/20",
+                        "p-2 border-l border-border/20",
                         "transition-all duration-200"
                       )}
                     >
                       <div className={cn(
-                        "p-3 rounded-lg border min-h-[80px]",
+                        "p-2 rounded-lg border h-full",
                         styles.bg,
                         styles.border,
                         "transition-all duration-200 group relative"
                       )}>
-                        <div className="flex items-start gap-2 pr-6">
-                          <span className={cn("w-2.5 h-2.5 rounded-full mt-0.5 flex-shrink-0", styles.dot)} />
-                          <p className="text-sm text-foreground leading-snug">
+                        <div className="flex items-start gap-2">
+                          <span className={cn("w-2 h-2 rounded-full mt-1 flex-shrink-0", styles.dot)} />
+                          <p className="text-xs text-foreground/80 line-clamp-2 leading-relaxed flex-1">
                             {cellData.summary}
                           </p>
                         </div>
@@ -472,13 +472,13 @@ const CategoryRow = ({ category, isExpanded, onToggle }: CategoryRowProps) => {
                               rel="noopener noreferrer"
                               onClick={(e) => e.stopPropagation()}
                               className={cn(
-                                "absolute top-2 right-2 p-1.5 rounded-md",
-                                "bg-white/90 hover:bg-white shadow-sm border border-border/50",
-                                "opacity-60 hover:opacity-100 transition-opacity",
+                                "absolute top-1 right-1 p-1.5 rounded-md",
+                                "bg-white/80 hover:bg-white shadow-sm",
+                                "opacity-0 group-hover:opacity-100 transition-opacity",
                                 "text-muted-foreground hover:text-primary"
                               )}
                             >
-                              <ExternalLink className="h-3.5 w-3.5" />
+                              <ExternalLink className="h-3 w-3" />
                             </a>
                           </TooltipTrigger>
                           <TooltipContent>
