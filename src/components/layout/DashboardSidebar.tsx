@@ -21,6 +21,10 @@ import {
   Download,
   Briefcase,
   ClipboardList,
+  Workflow,
+  CalendarClock,
+  Building2,
+  Cog,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -142,6 +146,27 @@ const navigationItems: NavItem[] = [
         title: "Reporte",
         icon: ClipboardList,
         href: "/gerencia/reporte",
+      },
+    ],
+  },
+  {
+    title: "Procesos",
+    icon: Workflow,
+    children: [
+      {
+        title: "Planeamiento",
+        icon: CalendarClock,
+        href: "/procesos?area=planeamiento",
+      },
+      {
+        title: "Administración",
+        icon: Building2,
+        href: "/procesos?area=administracion",
+      },
+      {
+        title: "Confiabilidad",
+        icon: Cog,
+        href: "/procesos?area=confiabilidad",
       },
     ],
   },
