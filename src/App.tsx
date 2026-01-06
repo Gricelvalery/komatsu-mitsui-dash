@@ -12,6 +12,7 @@ import { Plm } from "./pages/Plm";
 import Aceites from "./pages/Aceites";
 import Quellaveco from "./pages/Quellaveco";
 import GerenciaReporte from "./pages/GerenciaReporte";
+import Procesos from "./pages/Procesos";
 import FileManagement from "./pages/FileManagement";
 import Reports from "./pages/Reports";
 import Users from "./pages/Users";
@@ -115,6 +116,15 @@ const App = () => {
                     <>
                       <DashboardHeader title="Gerencia - Reporte de Proyectos" />
                       <GerenciaReporte />
+                    </>
+                  }
+                />
+                <Route
+                  path="/procesos/*"
+                  element={
+                    <>
+                      <DashboardHeader title="Gestión de Procesos" />
+                      <Procesos />
                     </>
                   }
                 />
