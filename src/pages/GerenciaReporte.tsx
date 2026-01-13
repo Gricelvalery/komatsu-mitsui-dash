@@ -41,10 +41,10 @@ const categoriesConfig: CategoryConfig[] = [
   {
     key: "seguridad",
     label: "SEGURIDAD",
-    color: "from-emerald-500 to-teal-600",
-    bgLight: "bg-emerald-500/10",
-    border: "border-emerald-500/30",
-    text: "text-emerald-600",
+    color: "from-[#003366] to-[#004d99]",
+    bgLight: "bg-[#003366]/5",
+    border: "border-[#003366]/30",
+    text: "text-[#003366]",
     subCategories: [
       { name: "Índice de Frecuencia", minKpi: 0.5, unit: "" },
       { name: "Índice de Severidad", minKpi: 10, unit: "" },
@@ -55,10 +55,10 @@ const categoriesConfig: CategoryConfig[] = [
   {
     key: "disponibilidad",
     label: "DISPONIBILIDAD",
-    color: "from-blue-500 to-indigo-600",
-    bgLight: "bg-blue-500/10",
-    border: "border-blue-500/30",
-    text: "text-blue-600",
+    color: "from-[#004d99] to-[#0066cc]",
+    bgLight: "bg-[#004d99]/5",
+    border: "border-[#004d99]/30",
+    text: "text-[#004d99]",
     subCategories: [
       { name: "Disponibilidad Física", minKpi: 92, unit: "%" },
       { name: "MTTR", minKpi: 4, unit: "hrs" },
@@ -69,10 +69,10 @@ const categoriesConfig: CategoryConfig[] = [
   {
     key: "gestion",
     label: "GESTIÓN",
-    color: "from-amber-500 to-orange-600",
-    bgLight: "bg-amber-500/10",
-    border: "border-amber-500/30",
-    text: "text-amber-600",
+    color: "from-[#4a5568] to-[#718096]",
+    bgLight: "bg-[#4a5568]/5",
+    border: "border-[#4a5568]/30",
+    text: "text-[#4a5568]",
     subCategories: [
       { name: "Cumplimiento PM", minKpi: 95, unit: "%" },
       { name: "Backlog", minKpi: 30, unit: "días" },
@@ -83,10 +83,10 @@ const categoriesConfig: CategoryConfig[] = [
   {
     key: "riesgos",
     label: "RIESGOS",
-    color: "from-rose-500 to-red-600",
-    bgLight: "bg-rose-500/10",
-    border: "border-rose-500/30",
-    text: "text-rose-600",
+    color: "from-[#2d3748] to-[#4a5568]",
+    bgLight: "bg-[#2d3748]/5",
+    border: "border-[#2d3748]/30",
+    text: "text-[#2d3748]",
     subCategories: [
       { name: "Riesgos Críticos", minKpi: 0, unit: "" },
       { name: "Acciones Pendientes", minKpi: 5, unit: "" },
