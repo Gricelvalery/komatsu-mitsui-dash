@@ -5,7 +5,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronRight, Search, Filter, Sparkles, ExternalLink, FileText } from "lucide-react";
+import { ChevronDown, ChevronRight, Search, Filter, ExternalLink, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -17,308 +17,203 @@ import {
 // Proyectos principales
 const projects = ["Antamina", "Bayovar", "Antapaccay", "Las Bambas", "Quellaveco", "Cerro Verde"];
 
-// Resúmenes de ejemplo por categoría e item
-const summaryTemplates = {
-  seguridad: {
-    "Inspección EPP": [
-      "98% cumplimiento EPP. 2 observaciones menores en cascos.",
-      "Inspección completa. Guantes reemplazados en sector B.",
-      "Sin observaciones. Todo el personal con EPP vigente.",
-      "Alerta: 5 trabajadores sin lentes de seguridad.",
-      "Auditoría OK. Capacitación pendiente área nueva.",
-      "100% conformidad. Próxima revisión en 15 días."
-    ],
-    "Capacitación SST": [
-      "45 trabajadores capacitados en manejo defensivo.",
-      "Pendiente: 12 operadores sin curso de altura.",
-      "Certificación completada para todo el equipo.",
-      "Programa mensual al 85% de avance.",
-      "Nueva capacitación IPERC programada.",
-      "Refuerzo en protocolo de emergencias."
-    ],
-    "Auditoría Interna": [
-      "Sin hallazgos críticos. 3 oportunidades de mejora.",
-      "Cierre de 8 no conformidades del mes anterior.",
-      "Pendiente revisión documentación área mantto.",
-      "Auditoría satisfactoria. Próxima en Q2.",
-      "2 hallazgos menores en registros.",
-      "Certificación ISO renovada exitosamente."
-    ],
-    "Protocolo LOTO": [
-      "100% dispositivos verificados y operativos.",
-      "Capacitación LOTO a 25 nuevos trabajadores.",
-      "Actualización procedimientos completada.",
-      "3 candados reemplazados por desgaste.",
-      "Simulacro exitoso con todo el personal.",
-      "Inventario de dispositivos actualizado."
-    ],
-    "Check Pre-Operacional": [
-      "Todos los equipos con check completo.",
-      "2 equipos detenidos por observaciones.",
-      "Formato digital implementado al 100%.",
-      "Reducción 30% en tiempos de revisión.",
-      "Alerta: falta firma supervisor en 5 checks.",
-      "Proceso optimizado y documentado."
-    ],
-    "Matriz IPERC": [
-      "Actualización trimestral completada.",
-      "15 nuevos riesgos identificados y mitigados.",
-      "Capacitación al personal en nuevos controles.",
-      "Pendiente revisión trabajos en caliente.",
-      "Matriz digitalizada y disponible en sistema.",
-      "Controles operativos al 95% implementados."
-    ]
-  },
-  disponibilidad: {
-    "Motor Principal": [
-      "Disponibilidad 94.5%. Mantto preventivo OK.",
-      "Cambio aceite realizado. Próximo en 500 hrs.",
-      "Alerta: vibración anormal detectada.",
-      "Overhaul programado para próximo mes.",
-      "Sin fallas reportadas este período.",
-      "Rendimiento óptimo, sin observaciones."
-    ],
-    "Sistema Hidráulico": [
-      "Presiones dentro de parámetros normales.",
-      "Fuga menor corregida en cilindro boom.",
-      "Cambio filtros completado según plan.",
-      "Mangueras en buen estado, vida útil 70%.",
-      "Alerta: temperatura elevada en bomba.",
-      "Sistema operando al 100% capacidad."
-    ],
-    "Transmisión": [
-      "Cambio aceite y filtro completado.",
-      "Sin anomalías en caja de cambios.",
-      "Embrague con desgaste normal.",
-      "Próximo servicio en 1000 hrs.",
-      "Convertidor operando correctamente.",
-      "Alerta: ruido en marcha 3ra."
-    ],
-    "Tren de Rodaje": [
-      "Desgaste cadenas al 45%, normal.",
-      "Tensión ajustada según especificación.",
-      "Rodillos sin juego excesivo.",
-      "Sprockets con vida útil restante OK.",
-      "Alerta: eslabón dañado, reparado.",
-      "Inspección completa sin hallazgos."
-    ],
-    "Sistema Eléctrico": [
-      "Baterías con carga óptima.",
-      "Alternador funcionando correctamente.",
-      "Cableado revisado sin deterioro.",
-      "Luces operativas al 100%.",
-      "Alerta: fusible quemado reemplazado.",
-      "Sistema de arranque OK."
-    ],
-    "Frenos": [
-      "Pastillas al 60% vida útil.",
-      "Sistema retardador operativo.",
-      "Freno de servicio calibrado.",
-      "Sin fugas en circuito neumático.",
-      "Alerta: ajuste requerido en eje trasero.",
-      "Pruebas de frenado satisfactorias."
-    ]
-  },
-  gestion: {
-    "Reporte Mensual": [
-      "Informe entregado. KPIs superados.",
-      "Pendiente cierre de indicadores área C.",
-      "Consolidado enviado a gerencia.",
-      "Desviación 5% en costos, justificada.",
-      "Cumplimiento 98% metas operativas.",
-      "Dashboard actualizado y disponible."
-    ],
-    "KPIs Operativos": [
-      "MTBF: 450 hrs. MTTR: 4.2 hrs.",
-      "Disponibilidad física: 92.3%.",
-      "Utilización: 78% vs 80% meta.",
-      "Productividad sobre objetivo.",
-      "Alerta: tendencia negativa en OEE.",
-      "Todos los KPIs en zona verde."
-    ],
-    "Control Combustible": [
-      "Consumo: 45 gal/hr. Dentro de rango.",
-      "Reducción 8% vs mes anterior.",
-      "Sin fugas detectadas en sistema.",
-      "Alerta: consumo elevado equipo 05.",
-      "Inventario actualizado diariamente.",
-      "Eficiencia combustible mejorada."
-    ],
-    "Horómetros": [
-      "Total acumulado: 12,450 hrs.",
-      "Próximo service mayor: 500 hrs.",
-      "Registro actualizado en sistema.",
-      "Sin discrepancias reportadas.",
-      "Calibración verificada OK.",
-      "Alerta: equipo cerca de overhaul."
-    ],
-    "Productividad": [
-      "Ton/hr: 285. Meta: 270. +5.5%",
-      "Ciclos/turno: 45 promedio.",
-      "Rendimiento sobre presupuesto.",
-      "Alerta: baja productividad turno noche.",
-      "Mejora continua en tiempos carguío.",
-      "Record mensual alcanzado."
-    ],
-    "Costos": [
-      "Costo/hr: $125. Presupuesto: $130.",
-      "Ahorro 3.8% en repuestos.",
-      "Alerta: sobrecosto en mano obra.",
-      "Control gastos implementado.",
-      "Proyección anual favorable.",
-      "Sin desviaciones significativas."
-    ]
-  },
-  riesgos: {
-    "Matriz de Riesgos": [
-      "15 riesgos altos, 8 medios, 22 bajos.",
-      "Actualización mensual completada.",
-      "2 riesgos nuevos identificados.",
-      "Controles verificados al 90%.",
-      "Capacitación al personal realizada.",
-      "Sin riesgos críticos pendientes."
-    ],
-    "Plan Contingencia": [
-      "Simulacro trimestral ejecutado.",
-      "100% personal conoce protocolo.",
-      "Equipos emergencia verificados.",
-      "Actualización rutas evacuación.",
-      "Alerta: kit primeros auxilios incompleto.",
-      "Plan aprobado por gerencia."
-    ],
-    "Evaluación Crítica": [
-      "Sin trabajos críticos pendientes.",
-      "ATS completados para tareas riesgo.",
-      "Supervisión reforzada en altura.",
-      "Permisos de trabajo al día.",
-      "Alerta: espacio confinado sin cert.",
-      "Evaluaciones al 100% cumplimiento."
-    ],
-    "Medidas Control": [
-      "85% controles implementados.",
-      "Barreras duras instaladas.",
-      "Señalización actualizada.",
-      "EPP específico disponible.",
-      "Alerta: control pendiente área X.",
-      "Verificación semanal OK."
-    ],
-    "Seguimiento": [
-      "12 acciones cerradas este mes.",
-      "5 acciones en proceso.",
-      "Sin vencimientos críticos.",
-      "Reunión semanal de seguimiento.",
-      "Dashboard riesgos actualizado.",
-      "Alerta: 2 acciones vencidas."
-    ],
-    "Alertas": [
-      "3 alertas activas nivel medio.",
-      "Ninguna alerta crítica vigente.",
-      "Sistema monitoreo operativo.",
-      "Notificaciones automáticas OK.",
-      "Escalamiento definido.",
-      "Sin incidentes este período."
-    ]
-  }
-};
+// Equipos para cada sub-categoría
+const equipos = ["980 E-5", "980 E-4", "980 E-3", "980 E-2", "980 E-1"];
 
-// Categorías con sus items
-const categories = [
+// Estructura de categorías con sub-categorías
+interface SubCategory {
+  name: string;
+  minKpi: number; // Umbral mínimo para el KPI
+  unit: string;
+}
+
+interface CategoryConfig {
+  key: string;
+  label: string;
+  color: string;
+  bgLight: string;
+  border: string;
+  text: string;
+  subCategories: SubCategory[];
+}
+
+const categoriesConfig: CategoryConfig[] = [
   {
-    key: "seguridad" as const,
+    key: "seguridad",
     label: "SEGURIDAD",
     color: "from-emerald-500 to-teal-600",
     bgLight: "bg-emerald-500/10",
     border: "border-emerald-500/30",
     text: "text-emerald-600",
-    items: [
-      "Inspección EPP",
-      "Capacitación SST",
-      "Auditoría Interna",
-      "Protocolo LOTO",
-      "Check Pre-Operacional",
-      "Matriz IPERC"
+    subCategories: [
+      { name: "Índice de Frecuencia", minKpi: 0.5, unit: "" },
+      { name: "Índice de Severidad", minKpi: 10, unit: "" },
+      { name: "Cumplimiento Capacitación", minKpi: 95, unit: "%" },
+      { name: "Inspecciones Realizadas", minKpi: 90, unit: "%" },
     ]
   },
   {
-    key: "disponibilidad" as const,
+    key: "disponibilidad",
     label: "DISPONIBILIDAD",
     color: "from-blue-500 to-indigo-600",
     bgLight: "bg-blue-500/10",
     border: "border-blue-500/30",
     text: "text-blue-600",
-    items: [
-      "Motor Principal",
-      "Sistema Hidráulico",
-      "Transmisión",
-      "Tren de Rodaje",
-      "Sistema Eléctrico",
-      "Frenos"
+    subCategories: [
+      { name: "Disponibilidad Física", minKpi: 92, unit: "%" },
+      { name: "MTTR", minKpi: 4, unit: "hrs" },
+      { name: "MTBF", minKpi: 150, unit: "hrs" },
+      { name: "Utilización", minKpi: 85, unit: "%" },
     ]
   },
   {
-    key: "gestion" as const,
+    key: "gestion",
     label: "GESTIÓN",
     color: "from-amber-500 to-orange-600",
     bgLight: "bg-amber-500/10",
     border: "border-amber-500/30",
     text: "text-amber-600",
-    items: [
-      "Reporte Mensual",
-      "KPIs Operativos",
-      "Control Combustible",
-      "Horómetros",
-      "Productividad",
-      "Costos"
+    subCategories: [
+      { name: "Cumplimiento PM", minKpi: 95, unit: "%" },
+      { name: "Backlog", minKpi: 30, unit: "días" },
+      { name: "OEE", minKpi: 80, unit: "%" },
+      { name: "Costo por Hora", minKpi: 150, unit: "USD" },
     ]
   },
   {
-    key: "riesgos" as const,
+    key: "riesgos",
     label: "RIESGOS",
     color: "from-rose-500 to-red-600",
     bgLight: "bg-rose-500/10",
     border: "border-rose-500/30",
     text: "text-rose-600",
-    items: [
-      "Matriz de Riesgos",
-      "Plan Contingencia",
-      "Evaluación Crítica",
-      "Medidas Control",
-      "Seguimiento",
-      "Alertas"
+    subCategories: [
+      { name: "Riesgos Críticos", minKpi: 0, unit: "" },
+      { name: "Acciones Pendientes", minKpi: 5, unit: "" },
+      { name: "Cumplimiento Controles", minKpi: 95, unit: "%" },
+      { name: "Incidentes Mes", minKpi: 0, unit: "" },
     ]
   }
 ];
 
-type CategoryKey = "seguridad" | "disponibilidad" | "gestion" | "riesgos";
+// Tipos para los datos
+type KpiStatus = "ok" | "warning" | "alert";
 
-// Generar datos para la matriz
-const generateMatrixData = () => {
-  const data: Record<string, Record<CategoryKey, Record<string, { summary: string; status: "ok" | "warning" | "alert"; fileUrl: string }>>> = {};
+interface EquipoData {
+  value: number;
+  status: KpiStatus;
+  summary: string;
+  fileUrl: string;
+}
+
+interface SubCategoryData {
+  [equipo: string]: EquipoData;
+}
+
+interface CategoryData {
+  [subCategory: string]: SubCategoryData;
+}
+
+interface ProjectData {
+  [category: string]: CategoryData;
+}
+
+interface MatrixData {
+  [project: string]: ProjectData;
+}
+
+// Función para determinar el estado basado en KPI
+const getKpiStatus = (value: number, minKpi: number, isLowerBetter: boolean = false): KpiStatus => {
+  if (isLowerBetter) {
+    // Para métricas donde menor es mejor (MTTR, Backlog, Riesgos, Incidentes, Acciones Pendientes)
+    if (value < minKpi) return "ok";
+    if (value === minKpi) return "warning";
+    return "alert";
+  } else {
+    // Para métricas donde mayor es mejor (Disponibilidad, MTBF, etc.)
+    if (value > minKpi) return "ok";
+    if (value === minKpi) return "warning";
+    return "alert";
+  }
+};
+
+// Métricas donde menor valor es mejor
+const lowerIsBetterMetrics = ["MTTR", "Backlog", "Riesgos Críticos", "Acciones Pendientes", "Incidentes Mes", "Costo por Hora", "Índice de Frecuencia", "Índice de Severidad"];
+
+// Generar datos simulados
+const generateMatrixData = (): MatrixData => {
+  const data: MatrixData = {};
   
   projects.forEach((project, projectIdx) => {
-    data[project] = {} as Record<CategoryKey, Record<string, { summary: string; status: "ok" | "warning" | "alert"; fileUrl: string }>>;
-    categories.forEach(category => {
+    data[project] = {};
+    
+    categoriesConfig.forEach((category) => {
       data[project][category.key] = {};
-      const categoryTemplates = summaryTemplates[category.key] as Record<string, string[]>;
       
-      category.items.forEach((item, idx) => {
-        const summaries = categoryTemplates[item] || ["Sin información disponible"];
-        const summaryIdx = (projectIdx + idx) % summaries.length;
-        const summary = summaries[summaryIdx];
+      category.subCategories.forEach((subCat, subIdx) => {
+        data[project][category.key][subCat.name] = {};
         
-        // Determinar status basado en el contenido
-        let status: "ok" | "warning" | "alert" = "ok";
-        if (summary.toLowerCase().includes("alerta") || summary.toLowerCase().includes("crítico")) {
-          status = "alert";
-        } else if (summary.toLowerCase().includes("pendiente") || summary.toLowerCase().includes("observacion")) {
-          status = "warning";
-        }
-        
-        data[project][category.key][item] = {
-          summary,
-          status,
-          fileUrl: `https://sharepoint.example.com/${project}/${category.key}/${item.replace(/ /g, "_")}.pdf`
-        };
+        equipos.forEach((equipo, equipoIdx) => {
+          // Generar valor aleatorio basado en el tipo de métrica
+          let value: number;
+          const isLowerBetter = lowerIsBetterMetrics.includes(subCat.name);
+          const baseVariation = (projectIdx + subIdx + equipoIdx) % 5;
+          
+          if (subCat.name === "Disponibilidad Física") {
+            value = 88 + baseVariation * 2; // 88-96%
+          } else if (subCat.name === "MTTR") {
+            value = 2.5 + baseVariation * 0.8; // 2.5-5.7 hrs
+          } else if (subCat.name === "MTBF") {
+            value = 120 + baseVariation * 20; // 120-200 hrs
+          } else if (subCat.name === "Utilización") {
+            value = 80 + baseVariation * 3; // 80-92%
+          } else if (subCat.name === "Cumplimiento PM") {
+            value = 90 + baseVariation * 2; // 90-98%
+          } else if (subCat.name === "Backlog") {
+            value = 20 + baseVariation * 5; // 20-40 días
+          } else if (subCat.name === "OEE") {
+            value = 75 + baseVariation * 4; // 75-91%
+          } else if (subCat.name === "Costo por Hora") {
+            value = 120 + baseVariation * 15; // 120-180 USD
+          } else if (subCat.name === "Riesgos Críticos") {
+            value = baseVariation % 3; // 0-2
+          } else if (subCat.name === "Acciones Pendientes") {
+            value = baseVariation * 2; // 0-8
+          } else if (subCat.name === "Cumplimiento Controles") {
+            value = 90 + baseVariation * 2; // 90-98%
+          } else if (subCat.name === "Incidentes Mes") {
+            value = baseVariation % 2; // 0-1
+          } else if (subCat.name === "Índice de Frecuencia") {
+            value = baseVariation * 0.3; // 0-1.2
+          } else if (subCat.name === "Índice de Severidad") {
+            value = baseVariation * 5; // 0-20
+          } else if (subCat.name === "Cumplimiento Capacitación") {
+            value = 90 + baseVariation * 2; // 90-98%
+          } else if (subCat.name === "Inspecciones Realizadas") {
+            value = 85 + baseVariation * 3; // 85-97%
+          } else {
+            value = 80 + baseVariation * 4;
+          }
+          
+          const status = getKpiStatus(value, subCat.minKpi, isLowerBetter);
+          
+          // Generar resumen descriptivo
+          let summary = "";
+          if (status === "ok") {
+            summary = `${subCat.name}: ${value}${subCat.unit}. Óptimo, supera objetivo de ${subCat.minKpi}${subCat.unit}.`;
+          } else if (status === "warning") {
+            summary = `${subCat.name}: ${value}${subCat.unit}. En el límite del objetivo mínimo.`;
+          } else {
+            summary = `${subCat.name}: ${value}${subCat.unit}. Alerta: por debajo del objetivo de ${subCat.minKpi}${subCat.unit}.`;
+          }
+          
+          data[project][category.key][subCat.name][equipo] = {
+            value: Math.round(value * 10) / 10,
+            status,
+            summary,
+            fileUrl: `https://sharepoint.example.com/${project}/${category.key}/${subCat.name.replace(/ /g, "_")}/${equipo.replace(/ /g, "_")}.pdf`
+          };
+        });
       });
     });
   });
@@ -330,182 +225,291 @@ const matrixData = generateMatrixData();
 
 const statusStyles = {
   ok: {
-    bg: "bg-emerald-50 hover:bg-emerald-100",
-    border: "border-emerald-200",
+    bg: "bg-emerald-100 hover:bg-emerald-200",
+    border: "border-emerald-300",
+    text: "text-emerald-800",
     dot: "bg-emerald-500"
   },
   warning: {
-    bg: "bg-amber-50 hover:bg-amber-100",
-    border: "border-amber-200",
+    bg: "bg-amber-100 hover:bg-amber-200",
+    border: "border-amber-300",
+    text: "text-amber-800",
     dot: "bg-amber-500"
   },
   alert: {
-    bg: "bg-rose-50 hover:bg-rose-100",
-    border: "border-rose-200",
+    bg: "bg-rose-100 hover:bg-rose-200",
+    border: "border-rose-300",
+    text: "text-rose-800",
     dot: "bg-rose-500"
   }
 };
 
-interface CategoryRowProps {
-  category: typeof categories[0];
+// Componente para la fila de equipo (nivel más bajo)
+interface EquipoRowProps {
+  equipo: string;
+  category: CategoryConfig;
+  subCategoryName: string;
+}
+
+const EquipoRow = ({ equipo, category, subCategoryName }: EquipoRowProps) => {
+  return (
+    <TooltipProvider>
+      <div
+        className="grid border-b border-border/20 bg-muted/20"
+        style={{ gridTemplateColumns: `180px repeat(${projects.length}, 1fr)` }}
+      >
+        {/* Equipo Label */}
+        <div className={cn(
+          "flex items-center gap-2 p-2 pl-14 text-xs",
+          "bg-muted/30"
+        )}>
+          <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+          <span className="font-medium text-muted-foreground">{equipo}</span>
+        </div>
+        
+        {/* KPI Cells */}
+        {projects.map((project) => {
+          const equipoData = matrixData[project][category.key][subCategoryName][equipo];
+          const styles = statusStyles[equipoData.status];
+          
+          return (
+            <div
+              key={project}
+              className="p-1.5 border-l border-border/10"
+            >
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className={cn(
+                    "p-2 rounded-lg border h-full cursor-pointer",
+                    styles.bg,
+                    styles.border,
+                    "transition-all duration-200 group relative flex items-center justify-between"
+                  )}>
+                    <div className="flex items-center gap-2">
+                      <span className={cn("w-2 h-2 rounded-full flex-shrink-0", styles.dot)} />
+                      <span className={cn("text-xs font-bold", styles.text)}>
+                        {equipoData.value}
+                      </span>
+                    </div>
+                    
+                    {/* File Link */}
+                    <a
+                      href={equipoData.fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className={cn(
+                        "p-1 rounded-md",
+                        "bg-white/60 hover:bg-white shadow-sm",
+                        "opacity-0 group-hover:opacity-100 transition-opacity",
+                        "text-muted-foreground hover:text-primary"
+                      )}
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs">
+                  <p className="text-xs">{equipoData.summary}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Click en ↗ para ver documento</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          );
+        })}
+      </div>
+    </TooltipProvider>
+  );
+};
+
+// Componente para la sub-categoría (segundo nivel)
+interface SubCategoryRowProps {
+  subCategory: SubCategory;
+  category: CategoryConfig;
   isExpanded: boolean;
   onToggle: () => void;
 }
 
-const CategoryRow = ({ category, isExpanded, onToggle }: CategoryRowProps) => {
+const SubCategoryRow = ({ subCategory, category, isExpanded, onToggle }: SubCategoryRowProps) => {
   return (
-    <TooltipProvider>
-      <Collapsible open={isExpanded} onOpenChange={onToggle}>
-        {/* Category Header Row */}
-        <CollapsibleTrigger className="w-full">
+    <Collapsible open={isExpanded} onOpenChange={onToggle}>
+      <CollapsibleTrigger className="w-full">
+        <div
+          className={cn(
+            "grid border-b border-border/30 transition-all duration-200 hover:bg-muted/30"
+          )}
+          style={{ gridTemplateColumns: `180px repeat(${projects.length}, 1fr)` }}
+        >
+          {/* SubCategory Label */}
           <div className={cn(
-            "grid transition-all duration-300 hover:scale-[1.005]",
-            "border-b border-border/50"
-          )} style={{ gridTemplateColumns: `180px repeat(${projects.length}, 1fr)` }}>
-            {/* Category Label */}
-            <div className={cn(
-              "flex items-center gap-3 p-4 font-bold text-sm tracking-wider",
-              "bg-gradient-to-r", category.color,
-              "text-white"
-            )}>
-              {isExpanded ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-              {category.label}
-            </div>
+            "flex items-center gap-2 p-3 pl-8 text-sm",
+            category.bgLight,
+            "border-l-2",
+            category.border
+          )}>
+            {isExpanded ? (
+              <ChevronDown className="h-3 w-3 text-muted-foreground" />
+            ) : (
+              <ChevronRight className="h-3 w-3 text-muted-foreground" />
+            )}
+            <span className="font-medium text-foreground text-xs">{subCategory.name}</span>
+            <span className="text-[10px] text-muted-foreground ml-1">
+              (Min: {subCategory.minKpi}{subCategory.unit})
+            </span>
+          </div>
+          
+          {/* Summary cells per project */}
+          {projects.map((project) => {
+            const subCatData = matrixData[project][category.key][subCategory.name];
+            const equipoValues = Object.values(subCatData);
+            const okCount = equipoValues.filter(e => e.status === "ok").length;
+            const warningCount = equipoValues.filter(e => e.status === "warning").length;
+            const alertCount = equipoValues.filter(e => e.status === "alert").length;
             
-            {/* Project Summary Cells */}
-            {projects.map((project) => {
-              const items = Object.values(matrixData[project][category.key]);
-              const alerts = items.filter(i => i.status === "alert").length;
-              const warnings = items.filter(i => i.status === "warning").length;
-              const ok = items.filter(i => i.status === "ok").length;
-              
-              return (
-                <div
-                  key={project}
-                  className={cn(
-                    "flex items-center justify-center gap-3 p-4",
-                    category.bgLight,
-                    "border-l border-border/30"
-                  )}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                    <span className="text-xs font-medium text-emerald-700">{ok}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-amber-500" />
-                    <span className="text-xs font-medium text-amber-700">{warnings}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-rose-500" />
-                    <span className="text-xs font-medium text-rose-700">{alerts}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </CollapsibleTrigger>
-
-        {/* Expanded Items */}
-        <CollapsibleContent>
-          <div className="animate-fade-in">
-            {category.items.map((item, idx) => (
+            return (
               <div
-                key={item}
-                className={cn(
-                  "grid border-b border-border/30"
-                )}
-                style={{ gridTemplateColumns: `180px repeat(${projects.length}, 1fr)` }}
+                key={project}
+                className="flex items-center justify-center gap-2 p-2 border-l border-border/20 bg-muted/10"
               >
-                {/* Item Label */}
-                <div className={cn(
-                  "flex items-center gap-2 p-3 pl-6 text-sm",
-                  category.bgLight,
-                  "border-l-4",
-                  category.border
-                )}>
-                  <span className={cn(
-                    "w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold",
-                    "bg-gradient-to-r", category.color, "text-white"
-                  )}>
-                    {idx + 1}
-                  </span>
-                  <span className="font-medium text-foreground text-xs truncate">{item}</span>
+                <div className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span className="text-xs font-medium text-emerald-700">{okCount}</span>
                 </div>
-                
-                {/* Project Cells with Summaries */}
-                {projects.map((project) => {
-                  const cellData = matrixData[project][category.key][item];
-                  const styles = statusStyles[cellData.status];
-                  
-                  return (
-                    <div
-                      key={project}
-                      className={cn(
-                        "p-2 border-l border-border/20",
-                        "transition-all duration-200"
-                      )}
-                    >
-                      <div className={cn(
-                        "p-2 rounded-lg border h-full",
-                        styles.bg,
-                        styles.border,
-                        "transition-all duration-200 group relative"
-                      )}>
-                        <div className="flex items-start gap-2">
-                          <span className={cn("w-2 h-2 rounded-full mt-1 flex-shrink-0", styles.dot)} />
-                          <p className="text-xs text-foreground/80 line-clamp-2 leading-relaxed flex-1">
-                            {cellData.summary}
-                          </p>
-                        </div>
-                        
-                        {/* File Link */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <a
-                              href={cellData.fileUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className={cn(
-                                "absolute top-1 right-1 p-1.5 rounded-md",
-                                "bg-white/80 hover:bg-white shadow-sm",
-                                "opacity-0 group-hover:opacity-100 transition-opacity",
-                                "text-muted-foreground hover:text-primary"
-                              )}
-                            >
-                              <ExternalLink className="h-3 w-3" />
-                            </a>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="text-xs">Abrir documento en SharePoint</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </div>
-                    </div>
-                  );
-                })}
+                <div className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-amber-500" />
+                  <span className="text-xs font-medium text-amber-700">{warningCount}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-rose-500" />
+                  <span className="text-xs font-medium text-rose-700">{alertCount}</span>
+                </div>
               </div>
-            ))}
+            );
+          })}
+        </div>
+      </CollapsibleTrigger>
+      
+      <CollapsibleContent>
+        <div className="animate-fade-in">
+          {equipos.map((equipo) => (
+            <EquipoRow
+              key={equipo}
+              equipo={equipo}
+              category={category}
+              subCategoryName={subCategory.name}
+            />
+          ))}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+};
+
+// Componente para la categoría principal (primer nivel)
+interface CategoryRowProps {
+  category: CategoryConfig;
+  isExpanded: boolean;
+  onToggle: () => void;
+  expandedSubCategories: Record<string, boolean>;
+  onToggleSubCategory: (subCatName: string) => void;
+}
+
+const CategoryRow = ({ 
+  category, 
+  isExpanded, 
+  onToggle, 
+  expandedSubCategories,
+  onToggleSubCategory 
+}: CategoryRowProps) => {
+  return (
+    <Collapsible open={isExpanded} onOpenChange={onToggle}>
+      {/* Category Header Row */}
+      <CollapsibleTrigger className="w-full">
+        <div className={cn(
+          "grid transition-all duration-300 hover:scale-[1.002]",
+          "border-b border-border/50"
+        )} style={{ gridTemplateColumns: `180px repeat(${projects.length}, 1fr)` }}>
+          {/* Category Label */}
+          <div className={cn(
+            "flex items-center gap-3 p-4 font-bold text-sm tracking-wider",
+            "bg-gradient-to-r", category.color,
+            "text-white"
+          )}>
+            {isExpanded ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
+            {category.label}
           </div>
-        </CollapsibleContent>
-      </Collapsible>
-    </TooltipProvider>
+          
+          {/* Project Summary Cells */}
+          {projects.map((project) => {
+            let okTotal = 0, warningTotal = 0, alertTotal = 0;
+            
+            category.subCategories.forEach(subCat => {
+              const subCatData = matrixData[project][category.key][subCat.name];
+              Object.values(subCatData).forEach(equipo => {
+                if (equipo.status === "ok") okTotal++;
+                else if (equipo.status === "warning") warningTotal++;
+                else alertTotal++;
+              });
+            });
+            
+            return (
+              <div
+                key={project}
+                className={cn(
+                  "flex items-center justify-center gap-3 p-4",
+                  category.bgLight,
+                  "border-l border-border/30"
+                )}
+              >
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                  <span className="text-sm font-bold text-emerald-700">{okTotal}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                  <span className="text-sm font-bold text-amber-700">{warningTotal}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
+                  <span className="text-sm font-bold text-rose-700">{alertTotal}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </CollapsibleTrigger>
+
+      {/* Expanded SubCategories */}
+      <CollapsibleContent>
+        <div className="animate-fade-in">
+          {category.subCategories.map((subCat) => (
+            <SubCategoryRow
+              key={subCat.name}
+              subCategory={subCat}
+              category={category}
+              isExpanded={expandedSubCategories[`${category.key}-${subCat.name}`] || false}
+              onToggle={() => onToggleSubCategory(`${category.key}-${subCat.name}`)}
+            />
+          ))}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 };
 
 const GerenciaReporte = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
-    seguridad: true,
-    disponibilidad: false,
+    seguridad: false,
+    disponibilidad: true,
     gestion: false,
     riesgos: false
   });
+  const [expandedSubCategories, setExpandedSubCategories] = useState<Record<string, boolean>>({});
 
   const toggleCategory = (key: string) => {
     setExpandedCategories(prev => ({
@@ -514,22 +518,35 @@ const GerenciaReporte = () => {
     }));
   };
 
+  const toggleSubCategory = (key: string) => {
+    setExpandedSubCategories(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
   const expandAll = () => {
-    setExpandedCategories({
-      seguridad: true,
-      disponibilidad: true,
-      gestion: true,
-      riesgos: true
+    const allCategories: Record<string, boolean> = {};
+    const allSubCategories: Record<string, boolean> = {};
+    
+    categoriesConfig.forEach(cat => {
+      allCategories[cat.key] = true;
+      cat.subCategories.forEach(subCat => {
+        allSubCategories[`${cat.key}-${subCat.name}`] = true;
+      });
     });
+    
+    setExpandedCategories(allCategories);
+    setExpandedSubCategories(allSubCategories);
   };
 
   const collapseAll = () => {
-    setExpandedCategories({
-      seguridad: false,
-      disponibilidad: false,
-      gestion: false,
-      riesgos: false
+    const allCategories: Record<string, boolean> = {};
+    categoriesConfig.forEach(cat => {
+      allCategories[cat.key] = false;
     });
+    setExpandedCategories(allCategories);
+    setExpandedSubCategories({});
   };
 
   return (
@@ -545,7 +562,7 @@ const GerenciaReporte = () => {
           </h1>
         </div>
         <p className="text-muted-foreground ml-14">
-          Resúmenes consolidados de documentos sincronizados desde SharePoint
+          KPIs por equipo con indicadores de rendimiento vs objetivo mínimo
         </p>
       </div>
 
@@ -584,24 +601,24 @@ const GerenciaReporte = () => {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-6 mb-6 p-4 rounded-xl bg-card/50 backdrop-blur-sm border border-border/50">
-        <span className="text-sm font-medium text-muted-foreground">Estado:</span>
+      <div className="flex flex-wrap items-center gap-6 mb-6 p-4 rounded-xl bg-card/50 backdrop-blur-sm border border-border/50">
+        <span className="text-sm font-medium text-muted-foreground">Estado KPI:</span>
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-emerald-500" />
-          <span className="text-sm text-muted-foreground">OK</span>
+          <span className="text-sm text-muted-foreground">Supera objetivo</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-amber-500" />
-          <span className="text-sm text-muted-foreground">Pendiente</span>
+          <span className="text-sm text-muted-foreground">En el límite</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-rose-500" />
-          <span className="text-sm text-muted-foreground">Alerta</span>
+          <span className="text-sm text-muted-foreground">Por debajo del objetivo</span>
         </div>
         <div className="h-4 w-px bg-border mx-2" />
         <div className="flex items-center gap-2">
           <ExternalLink className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">Hover para ver enlace al archivo</span>
+          <span className="text-sm text-muted-foreground">Ver documento</span>
         </div>
       </div>
 
@@ -613,7 +630,7 @@ const GerenciaReporte = () => {
           style={{ gridTemplateColumns: `180px repeat(${projects.length}, 1fr)` }}
         >
           <div className="p-4 font-bold text-sidebar-foreground text-sm border-r border-sidebar-border/50">
-            Categoría / Proyecto
+            Categoría / Equipo
           </div>
           {projects.map((project) => (
             <div
@@ -630,12 +647,14 @@ const GerenciaReporte = () => {
 
         {/* Category Rows */}
         <div className="divide-y divide-border/30">
-          {categories.map((category) => (
+          {categoriesConfig.map((category) => (
             <CategoryRow
               key={category.key}
               category={category}
               isExpanded={expandedCategories[category.key]}
               onToggle={() => toggleCategory(category.key)}
+              expandedSubCategories={expandedSubCategories}
+              onToggleSubCategory={toggleSubCategory}
             />
           ))}
         </div>
@@ -643,13 +662,15 @@ const GerenciaReporte = () => {
 
       {/* Footer Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-        {categories.map((category) => {
+        {categoriesConfig.map((category) => {
           let okCount = 0, warningCount = 0, alertCount = 0;
           projects.forEach(project => {
-            Object.values(matrixData[project][category.key]).forEach(item => {
-              if (item.status === "ok") okCount++;
-              else if (item.status === "warning") warningCount++;
-              else alertCount++;
+            category.subCategories.forEach(subCat => {
+              Object.values(matrixData[project][category.key][subCat.name]).forEach(equipo => {
+                if (equipo.status === "ok") okCount++;
+                else if (equipo.status === "warning") warningCount++;
+                else alertCount++;
+              });
             });
           });
           
