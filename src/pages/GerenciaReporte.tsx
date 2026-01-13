@@ -255,16 +255,19 @@ const EquipoRow = ({ equipo, category, subCategoryName }: EquipoRowProps) => {
   return (
     <TooltipProvider>
       <div
-        className="grid border-b border-border/20 bg-muted/20"
+        className="grid border-b border-[#003366]/10 bg-gradient-to-r from-slate-50/80 to-white hover:from-slate-100/80 hover:to-slate-50/50 transition-all duration-200"
         style={{ gridTemplateColumns: `180px repeat(${projects.length}, 1fr)` }}
       >
         {/* Equipo Label */}
         <div className={cn(
-          "flex items-center gap-2 p-2 pl-14 text-xs",
-          "bg-muted/30"
+          "flex items-center gap-3 p-3 pl-16 text-xs",
+          "bg-gradient-to-r from-[#003366]/5 to-transparent",
+          "border-l-4 border-[#003366]/20"
         )}>
-          <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
-          <span className="font-medium text-muted-foreground">{equipo}</span>
+          <div className="w-6 h-6 rounded-md bg-gradient-to-br from-[#003366] to-[#004d99] flex items-center justify-center shadow-sm">
+            <span className="text-[10px] font-bold text-white">{equipo.split(' ')[1]}</span>
+          </div>
+          <span className="font-semibold text-[#003366]">{equipo}</span>
         </div>
         
         {/* KPI Cells */}
@@ -275,19 +278,23 @@ const EquipoRow = ({ equipo, category, subCategoryName }: EquipoRowProps) => {
           return (
             <div
               key={project}
-              className="p-1.5 border-l border-border/10"
+              className="p-2 border-l border-[#003366]/5"
             >
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className={cn(
-                    "p-2 rounded-lg border h-full cursor-pointer",
+                    "p-3 rounded-xl border-2 h-full cursor-pointer",
                     styles.bg,
                     styles.border,
-                    "transition-all duration-200 group relative flex items-center justify-between"
+                    "transition-all duration-300 group relative flex items-center justify-between",
+                    "hover:shadow-md hover:scale-[1.02]"
                   )}>
                     <div className="flex items-center gap-2">
-                      <span className={cn("w-2 h-2 rounded-full flex-shrink-0", styles.dot)} />
-                      <span className={cn("text-xs font-bold", styles.text)}>
+                      <div className={cn(
+                        "w-3 h-3 rounded-full flex-shrink-0 shadow-sm",
+                        styles.dot
+                      )} />
+                      <span className={cn("text-sm font-bold", styles.text)}>
                         {equipoData.value}
                       </span>
                     </div>
@@ -299,19 +306,19 @@ const EquipoRow = ({ equipo, category, subCategoryName }: EquipoRowProps) => {
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
                       className={cn(
-                        "p-1 rounded-md",
-                        "bg-white/60 hover:bg-white shadow-sm",
-                        "opacity-0 group-hover:opacity-100 transition-opacity",
-                        "text-muted-foreground hover:text-primary"
+                        "p-1.5 rounded-lg",
+                        "bg-white/80 hover:bg-[#003366] shadow-sm",
+                        "opacity-0 group-hover:opacity-100 transition-all duration-200",
+                        "text-[#003366] hover:text-white"
                       )}
                     >
-                      <ExternalLink className="h-3 w-3" />
+                      <ExternalLink className="h-3.5 w-3.5" />
                     </a>
                   </div>
                 </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-xs">
+                <TooltipContent side="top" className="max-w-xs bg-[#003366] text-white border-[#004d99]">
                   <p className="text-xs">{equipoData.summary}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Click en ↗ para ver documento</p>
+                  <p className="text-xs text-blue-200 mt-1">Click en ↗ para ver documento</p>
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -336,26 +343,42 @@ const SubCategoryRow = ({ subCategory, category, isExpanded, onToggle }: SubCate
       <CollapsibleTrigger className="w-full">
         <div
           className={cn(
-            "grid border-b border-border/30 transition-all duration-200 hover:bg-muted/30"
+            "grid border-b border-[#003366]/10 transition-all duration-300",
+            isExpanded 
+              ? "bg-gradient-to-r from-[#003366]/10 to-[#004d99]/5" 
+              : "bg-gradient-to-r from-slate-50 to-white hover:from-[#003366]/5 hover:to-slate-50"
           )}
           style={{ gridTemplateColumns: `180px repeat(${projects.length}, 1fr)` }}
         >
           {/* SubCategory Label */}
           <div className={cn(
-            "flex items-center gap-2 p-3 pl-8 text-sm",
-            category.bgLight,
-            "border-l-2",
-            category.border
+            "flex items-center gap-3 p-4 pl-6 text-sm",
+            "border-l-4",
+            isExpanded ? "border-[#003366]" : "border-[#003366]/30"
           )}>
-            {isExpanded ? (
-              <ChevronDown className="h-3 w-3 text-muted-foreground" />
-            ) : (
-              <ChevronRight className="h-3 w-3 text-muted-foreground" />
-            )}
-            <span className="font-medium text-foreground text-xs">{subCategory.name}</span>
-            <span className="text-[10px] text-muted-foreground ml-1">
-              (Min: {subCategory.minKpi}{subCategory.unit})
-            </span>
+            <div className={cn(
+              "w-6 h-6 rounded-lg flex items-center justify-center transition-all duration-300",
+              isExpanded 
+                ? "bg-[#003366] text-white shadow-md" 
+                : "bg-[#003366]/10 text-[#003366]"
+            )}>
+              {isExpanded ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </div>
+            <div className="flex flex-col items-start">
+              <span className={cn(
+                "font-semibold text-sm transition-colors",
+                isExpanded ? "text-[#003366]" : "text-foreground"
+              )}>
+                {subCategory.name}
+              </span>
+              <span className="text-[10px] text-muted-foreground">
+                Objetivo mín: {subCategory.minKpi}{subCategory.unit}
+              </span>
+            </div>
           </div>
           
           {/* Summary cells per project */}
@@ -369,19 +392,19 @@ const SubCategoryRow = ({ subCategory, category, isExpanded, onToggle }: SubCate
             return (
               <div
                 key={project}
-                className="flex items-center justify-center gap-2 p-2 border-l border-border/20 bg-muted/10"
+                className="flex items-center justify-center gap-3 p-3 border-l border-[#003366]/10"
               >
-                <div className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span className="text-xs font-medium text-emerald-700">{okCount}</span>
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-100/80">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm" />
+                  <span className="text-xs font-bold text-emerald-700">{okCount}</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-amber-500" />
-                  <span className="text-xs font-medium text-amber-700">{warningCount}</span>
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-100/80">
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm" />
+                  <span className="text-xs font-bold text-amber-700">{warningCount}</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-rose-500" />
-                  <span className="text-xs font-medium text-rose-700">{alertCount}</span>
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-rose-100/80">
+                  <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm" />
+                  <span className="text-xs font-bold text-rose-700">{alertCount}</span>
                 </div>
               </div>
             );
@@ -390,7 +413,7 @@ const SubCategoryRow = ({ subCategory, category, isExpanded, onToggle }: SubCate
       </CollapsibleTrigger>
       
       <CollapsibleContent>
-        <div className="animate-fade-in">
+        <div className="animate-fade-in bg-gradient-to-b from-slate-50/50 to-white">
           {equipos.map((equipo) => (
             <EquipoRow
               key={equipo}
