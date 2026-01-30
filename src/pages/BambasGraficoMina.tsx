@@ -23,7 +23,82 @@ import {
   Shield,
   Wrench,
   TrendingUp,
+  Clock,
+  ArrowRight,
 } from "lucide-react";
+
+// Datos de la línea de tiempo
+const timelineData = [
+  {
+    fecha: "5-Dic",
+    fechaCompleta: "5 de Diciembre",
+    tipo: "ingreso",
+    personas: [
+      { nombre: "Rojas Bardon, Miguel Angel", cargo: "SUPERVISOR SSOMA" }
+    ]
+  },
+  {
+    fecha: "12-Ene",
+    fechaCompleta: "12 de Enero",
+    tipo: "ingreso",
+    personas: [
+      { nombre: "Chillca Mamani, Jorge", cargo: "TECNICO SOLDADOR" },
+      { nombre: "Mamani Valero, Edgar Abad", cargo: "TECNICO SOLDADOR" },
+      { nombre: "Puelles Mayhuire, Eber", cargo: "TECNICO SOLDADOR" },
+      { nombre: "Lope Yana, Jhulinio Dario", cargo: "TECNICO SOLDADOR" },
+      { nombre: "Solis Gutierrez, Jose Alberto", cargo: "TECNICO SOLDADOR" },
+      { nombre: "Pauccara Conza, Jose", cargo: "TECNICO SOLDADOR" },
+    ]
+  },
+  {
+    fecha: "17-Ene",
+    fechaCompleta: "17 de Enero",
+    tipo: "mina",
+    personas: [
+      { nombre: "Rojas Bardon, Miguel Angel", cargo: "SUPERVISOR SSOMA" }
+    ]
+  },
+  {
+    fecha: "19-Ene",
+    fechaCompleta: "19 de Enero",
+    tipo: "ingreso",
+    personas: [
+      { nombre: "Javier Cruz Quispe", cargo: "SUPERVISOR SSOMA" },
+      { nombre: "Eliu Jersson Huamani Cabana", cargo: "TECNICO SOLDADOR" },
+    ]
+  },
+  {
+    fecha: "30-Ene",
+    fechaCompleta: "30 de Enero",
+    tipo: "mina",
+    personas: [
+      { nombre: "Luis Anthony Romero Callo", cargo: "ESPECIALISTA NDT" },
+      { nombre: "Javier Cruz Quispe", cargo: "SUPERVISOR SSOMA" },
+      { nombre: "Chillca Mamani, Jorge", cargo: "TECNICO SOLDADOR" },
+      { nombre: "Mamani Valero, Edgar Abad", cargo: "TECNICO SOLDADOR" },
+      { nombre: "Puelles Mayhuire, Eber", cargo: "TECNICO SOLDADOR" },
+      { nombre: "Solis Gutierrez, Jose Alberto", cargo: "TECNICO SOLDADOR" },
+      { nombre: "Pauccara Conza, Jose", cargo: "TECNICO SOLDADOR" },
+      { nombre: "Eliu Jersson Huamani Cabana", cargo: "TECNICO SOLDADOR" },
+    ]
+  },
+  {
+    fecha: "31-Ene",
+    fechaCompleta: "31 de Enero",
+    tipo: "mina",
+    personas: [
+      { nombre: "Lope Yana, Jhulinio Dario", cargo: "TECNICO SOLDADOR" },
+    ]
+  },
+  {
+    fecha: "1-Feb",
+    fechaCompleta: "1 de Febrero",
+    tipo: "ingreso",
+    personas: [
+      { nombre: "Luis Anthony Romero Callo", cargo: "ESPECIALISTA NDT" },
+    ]
+  },
+];
 
 // Personal YA EN MINA (reclutamiento completado)
 const personalEnMina = [
@@ -143,7 +218,86 @@ const BambasGraficoMina = () => {
                 <div className="flex items-end gap-2 mb-2">
                   <span className="text-3xl font-bold text-foreground">{item.cantidad}</span>
                   <span className="text-lg text-muted-foreground mb-1">/ {item.meta}</span>
-                </div>
+      </div>
+
+      {/* LÍNEA DE TIEMPO */}
+      <Card className="mb-6 border border-border/50 shadow-lg overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-[hsl(var(--komatsu-blue))]/10 via-[hsl(var(--komatsu-yellow))]/5 to-transparent border-b">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Clock className="w-5 h-5 text-[hsl(var(--komatsu-blue))]" />
+            Línea de Tiempo del Reclutamiento
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="relative">
+            {/* Línea horizontal */}
+            <div className="absolute top-8 left-0 right-0 h-1 bg-gradient-to-r from-[hsl(var(--komatsu-blue))] via-[hsl(var(--komatsu-yellow))] to-[hsl(var(--komatsu-blue))] rounded-full" />
+            
+            {/* Eventos en la línea de tiempo */}
+            <div className="flex justify-between items-start relative">
+              {timelineData.map((evento, index) => {
+                const isIngreso = evento.tipo === "ingreso";
+                const bgColor = isIngreso ? "bg-[hsl(var(--komatsu-blue))]" : "bg-green-500";
+                const lightBg = isIngreso ? "bg-[hsl(var(--komatsu-blue))]/10" : "bg-green-500/10";
+                const borderColor = isIngreso ? "border-[hsl(var(--komatsu-blue))]/30" : "border-green-500/30";
+                const textColor = isIngreso ? "text-[hsl(var(--komatsu-blue))]" : "text-green-600";
+                
+                return (
+                  <div key={index} className="flex flex-col items-center flex-1 group">
+                    {/* Fecha */}
+                    <div className={`${bgColor} text-white px-3 py-1 rounded-full text-xs font-bold mb-2 shadow-md`}>
+                      {evento.fecha}
+                    </div>
+                    
+                    {/* Punto en la línea */}
+                    <div className={`w-4 h-4 ${bgColor} rounded-full border-4 border-background shadow-lg z-10 group-hover:scale-125 transition-transform`} />
+                    
+                    {/* Tipo de evento */}
+                    <div className={`mt-2 px-2 py-0.5 rounded text-xs font-medium ${lightBg} ${textColor} ${borderColor} border`}>
+                      {isIngreso ? "📋 Ingreso" : "⛏️ A Mina"}
+                    </div>
+                    
+                    {/* Cantidad de personas */}
+                    <div className={`mt-2 flex items-center gap-1 text-sm font-bold ${textColor}`}>
+                      <Users className="w-4 h-4" />
+                      {evento.personas.length}
+                    </div>
+                    
+                    {/* Lista de personas (tooltip expandible) */}
+                    <div className={`mt-2 p-2 rounded-lg ${lightBg} border ${borderColor} max-w-[140px] opacity-0 group-hover:opacity-100 transition-opacity duration-200`}>
+                      <div className="space-y-1">
+                        {evento.personas.slice(0, 3).map((p, i) => (
+                          <div key={i} className="text-xs text-foreground truncate" title={p.nombre}>
+                            {p.nombre.split(',')[0]}
+                          </div>
+                        ))}
+                        {evento.personas.length > 3 && (
+                          <div className="text-xs text-muted-foreground">
+                            +{evento.personas.length - 3} más...
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Leyenda */}
+            <div className="flex items-center justify-center gap-6 mt-8 pt-4 border-t border-border/50">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[hsl(var(--komatsu-blue))]" />
+                <span className="text-sm text-muted-foreground">Fecha de Ingreso</span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-muted-foreground" />
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-green-500" />
+                <span className="text-sm text-muted-foreground">Ingreso a Mina</span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
                 <Progress 
                   value={item.porcentaje} 
                   className={`h-2 ${isComplete ? "bg-green-500/20" : "bg-[hsl(var(--industrial-gray))]/20"}`} 
