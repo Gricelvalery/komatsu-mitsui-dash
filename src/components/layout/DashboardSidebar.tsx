@@ -25,6 +25,8 @@ import {
   CalendarClock,
   Building2,
   Cog,
+  Mountain,
+  LineChart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -146,6 +148,17 @@ const navigationItems: NavItem[] = [
         title: "Reporte",
         icon: ClipboardList,
         href: "/gerencia/reporte",
+      },
+    ],
+  },
+  {
+    title: "Bambas",
+    icon: Mountain,
+    children: [
+      {
+        title: "Gráfico de Mina",
+        icon: LineChart,
+        href: "/bambas/grafico-mina",
       },
     ],
   },
