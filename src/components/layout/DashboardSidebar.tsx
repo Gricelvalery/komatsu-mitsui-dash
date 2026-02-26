@@ -163,6 +163,17 @@ const navigationItems: NavItem[] = [
     ],
   },
   {
+    title: "Administración",
+    icon: Building2,
+    children: [
+      {
+        title: "Seguimiento",
+        icon: ClipboardList,
+        href: "/administracion/seguimiento",
+      },
+    ],
+  },
+  {
     title: "Procesos",
     icon: Workflow,
     children: [
