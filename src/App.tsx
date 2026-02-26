@@ -19,6 +19,7 @@ import Users from "./pages/Users";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import BambasGraficoMina from "./pages/BambasGraficoMina";
+import SeguimientoHerramientas from "./pages/SeguimientoHerramientas";
 import { cn } from "@/lib/utils";
 
 const queryClient = new QueryClient();
@@ -135,6 +136,15 @@ const App = () => {
                     <>
                       <DashboardHeader title="Bambas - Gráfico de Mina" />
                       <BambasGraficoMina />
+                    </>
+                  }
+                />
+                <Route
+                  path="/administracion/seguimiento"
+                  element={
+                    <>
+                      <DashboardHeader title="Administración - Seguimiento de Herramientas" />
+                      <SeguimientoHerramientas />
                     </>
                   }
                 />
