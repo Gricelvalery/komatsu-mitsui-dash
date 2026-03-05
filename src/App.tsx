@@ -20,6 +20,7 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import BambasGraficoMina from "./pages/BambasGraficoMina";
 import SeguimientoHerramientas from "./pages/SeguimientoHerramientas";
+import MejoraAgenda from "./pages/MejoraAgenda";
 import { cn } from "@/lib/utils";
 
 const queryClient = new QueryClient();
@@ -136,6 +137,15 @@ const App = () => {
                     <>
                       <DashboardHeader title="Bambas - Gráfico de Mina" />
                       <BambasGraficoMina />
+                    </>
+                  }
+                />
+                <Route
+                  path="/mejora/agenda"
+                  element={
+                    <>
+                      <DashboardHeader title="Mejora - Agenda de Reuniones" />
+                      <MejoraAgenda />
                     </>
                   }
                 />
