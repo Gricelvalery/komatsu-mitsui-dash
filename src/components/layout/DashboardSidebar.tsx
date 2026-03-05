@@ -163,6 +163,17 @@ const navigationItems: NavItem[] = [
     ],
   },
   {
+    title: "Mejora",
+    icon: TrendingUp,
+    children: [
+      {
+        title: "Agenda",
+        icon: ClipboardList,
+        href: "/mejora/agenda",
+      },
+    ],
+  },
+  {
     title: "Administración",
     icon: Building2,
     children: [

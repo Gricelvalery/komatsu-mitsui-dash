@@ -141,6 +141,15 @@ const App = () => {
                   }
                 />
                 <Route
+                  path="/mejora/agenda"
+                  element={
+                    <>
+                      <DashboardHeader title="Mejora - Agenda de Reuniones" />
+                      <MejoraAgenda />
+                    </>
+                  }
+                />
+                <Route
                   path="/administracion/seguimiento"
                   element={
                     <>
