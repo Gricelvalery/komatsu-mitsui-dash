@@ -20,6 +20,7 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import BambasGraficoMina from "./pages/BambasGraficoMina";
 import SeguimientoHerramientas from "./pages/SeguimientoHerramientas";
+import MejoraAgenda from "./pages/MejoraAgenda";
 import { cn } from "@/lib/utils";
 
 const queryClient = new QueryClient();
