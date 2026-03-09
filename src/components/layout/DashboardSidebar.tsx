@@ -182,6 +182,11 @@ const navigationItems: NavItem[] = [
         icon: ClipboardList,
         href: "/administracion/seguimiento",
       },
+      {
+        title: "KPI Herramientas",
+        icon: BarChart3,
+        href: "/administracion/kpi",
+      },
     ],
   },
   {
