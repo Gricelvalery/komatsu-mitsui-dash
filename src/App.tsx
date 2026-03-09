@@ -20,6 +20,7 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import BambasGraficoMina from "./pages/BambasGraficoMina";
 import SeguimientoHerramientas from "./pages/SeguimientoHerramientas";
+import SeguimientoKpi from "./pages/SeguimientoKpi";
 import MejoraAgenda from "./pages/MejoraAgenda";
 import { cn } from "@/lib/utils";
 
@@ -155,6 +156,15 @@ const App = () => {
                     <>
                       <DashboardHeader title="Administración - Seguimiento de Herramientas" />
                       <SeguimientoHerramientas />
+                    </>
+                  }
+                />
+                <Route
+                  path="/administracion/kpi"
+                  element={
+                    <>
+                      <DashboardHeader title="Administración - KPI Herramientas" />
+                      <SeguimientoKpi />
                     </>
                   }
                 />
