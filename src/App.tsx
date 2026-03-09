@@ -160,6 +160,15 @@ const App = () => {
                   }
                 />
                 <Route
+                  path="/administracion/kpi"
+                  element={
+                    <>
+                      <DashboardHeader title="Administración - KPI Herramientas" />
+                      <SeguimientoKpi />
+                    </>
+                  }
+                />
+                <Route
                   path="/configuracion"
                   element={
                     <>
