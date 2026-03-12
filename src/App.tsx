@@ -170,6 +170,15 @@ const App = () => {
                   }
                 />
                 <Route
+                  path="/administracion/herramientas-poder"
+                  element={
+                    <>
+                      <DashboardHeader title="Administración - Herramientas de Poder" />
+                      <HerramientasPoder />
+                    </>
+                  }
+                />
+                <Route
                   path="/configuracion"
                   element={
                     <>
