@@ -187,6 +187,11 @@ const navigationItems: NavItem[] = [
         icon: BarChart3,
         href: "/administracion/kpi",
       },
+      {
+        title: "Herramientas de Poder",
+        icon: Cog,
+        href: "/administracion/herramientas-poder",
+      },
     ],
   },
   {
