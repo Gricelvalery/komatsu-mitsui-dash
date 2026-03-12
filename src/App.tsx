@@ -22,6 +22,7 @@ import BambasGraficoMina from "./pages/BambasGraficoMina";
 import SeguimientoHerramientas from "./pages/SeguimientoHerramientas";
 import SeguimientoKpi from "./pages/SeguimientoKpi";
 import MejoraAgenda from "./pages/MejoraAgenda";
+import HerramientasPoder from "./pages/HerramientasPoder";
 import { cn } from "@/lib/utils";
 
 const queryClient = new QueryClient();
@@ -165,6 +166,15 @@ const App = () => {
                     <>
                       <DashboardHeader title="Administración - KPI Herramientas" />
                       <SeguimientoKpi />
+                    </>
+                  }
+                />
+                <Route
+                  path="/administracion/herramientas-poder"
+                  element={
+                    <>
+                      <DashboardHeader title="Administración - Herramientas de Poder" />
+                      <HerramientasPoder />
                     </>
                   }
                 />
