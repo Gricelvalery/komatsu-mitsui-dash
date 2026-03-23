@@ -259,7 +259,7 @@ const Slide6 = ({ isActive }: SlideProps) => (
           <p className="text-xs font-bold text-[hsl(230,60%,35%)] mb-2">Josselhing Vilchez</p>
           <p className="text-xs text-[hsl(213,40%,50%)]">Cerro Verde, Cuajone, Quellaveco, Toquepala</p>
         </div>
-        <div className="p-4 rounded-xl bg-[hsl(150,60%,97%)] border border-[hsl(230,30%,85%)]">
+        <div className="p-4 rounded-xl bg-[hsl(230,30%,97%)] border border-[hsl(230,30%,85%)]">
           <p className="text-xs font-bold text-[hsl(220,10%,40%)] mb-2">Astrid Lucano</p>
           <p className="text-xs text-[hsl(213,40%,50%)]">Bambas, Antamina, Armados, Camiones</p>
         </div>
@@ -339,7 +339,7 @@ const Slide8 = ({ isActive }: SlideProps) => (
           </div>
           
           {/* Servicios */}
-          <div className="rounded-2xl overflow-hidden border border-[hsl(150,40%,80%)]">
+          <div className="rounded-2xl overflow-hidden border border-[hsl(230,30%,80%)]">
             <div className="p-4 bg-[hsl(220,10%,45%)] text-white">
               <p className="font-bold">🔧 SERVICIOS</p>
             </div>
