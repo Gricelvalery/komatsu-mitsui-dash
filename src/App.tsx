@@ -23,6 +23,7 @@ import SeguimientoHerramientas from "./pages/SeguimientoHerramientas";
 import SeguimientoKpi from "./pages/SeguimientoKpi";
 import MejoraAgenda from "./pages/MejoraAgenda";
 import HerramientasPoder from "./pages/HerramientasPoder";
+import ControlCompras from "./pages/ControlCompras";
 import { cn } from "@/lib/utils";
 
 const queryClient = new QueryClient();

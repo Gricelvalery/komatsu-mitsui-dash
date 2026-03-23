@@ -192,6 +192,11 @@ const navigationItems: NavItem[] = [
         icon: Cog,
         href: "/administracion/herramientas-poder",
       },
+      {
+        title: "Control Compras",
+        icon: ClipboardList,
+        href: "/administracion/control-compras",
+      },
     ],
   },
   {
