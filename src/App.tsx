@@ -23,6 +23,7 @@ import SeguimientoHerramientas from "./pages/SeguimientoHerramientas";
 import SeguimientoKpi from "./pages/SeguimientoKpi";
 import MejoraAgenda from "./pages/MejoraAgenda";
 import HerramientasPoder from "./pages/HerramientasPoder";
+import ControlCompras from "./pages/ControlCompras";
 import { cn } from "@/lib/utils";
 
 const queryClient = new QueryClient();
@@ -175,6 +176,15 @@ const App = () => {
                     <>
                       <DashboardHeader title="Administración - Herramientas de Poder" />
                       <HerramientasPoder />
+                    </>
+                  }
+                />
+                <Route
+                  path="/administracion/control-compras"
+                  element={
+                    <>
+                      <DashboardHeader title="Administración - Control de Compras" />
+                      <ControlCompras />
                     </>
                   }
                 />
