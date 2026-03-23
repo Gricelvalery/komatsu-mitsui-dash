@@ -180,6 +180,15 @@ const App = () => {
                   }
                 />
                 <Route
+                  path="/administracion/control-compras"
+                  element={
+                    <>
+                      <DashboardHeader title="Administración - Control de Compras" />
+                      <ControlCompras />
+                    </>
+                  }
+                />
+                <Route
                   path="/configuracion"
                   element={
                     <>
