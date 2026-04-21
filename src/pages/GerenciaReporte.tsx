@@ -1,734 +1,625 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { ChevronDown, ChevronRight, Search, Filter, ExternalLink, FileText } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Search,
+  ArrowUp,
+  ArrowDown,
+  Minus,
+  Shield,
+  Activity,
+  DollarSign,
+  Users,
+  ExternalLink,
+  Download,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
-// Proyectos principales
-const projects = ["Antamina", "Bayovar", "Antapaccay", "Las Bambas", "Quellaveco", "Cerro Verde"];
+/* ============================================================
+   DATA – BU Servicios Minería y KRCP (Excel Abr-26)
+============================================================ */
 
-// Equipos para cada sub-categoría
-const equipos = ["980 E-5", "980 E-4", "980 E-3", "980 E-2", "980 E-1"];
+type Trend = "up" | "down" | "flat";
+type Status = "good" | "warn" | "bad" | "none";
 
-// Estructura de categorías con sub-categorías
-interface SubCategory {
+interface Cell {
+  value: string;          // valor a mostrar
+  raw?: number | null;    // numérico para cálculos
+  status: Status;         // semáforo
+  trend?: Trend;          // tendencia
+}
+
+interface Project {
   name: string;
-  minKpi: number; // Umbral mínimo para el KPI
-  unit: string;
+  data: Record<string, Cell>;
 }
 
-interface CategoryConfig {
-  key: string;
-  label: string;
-  color: string;
-  bgLight: string;
-  border: string;
-  text: string;
-  subCategories: SubCategory[];
-}
+const fmtPct = (v: number | null) => (v === null ? "—" : `${v.toFixed(1)}%`);
+const fmtNum = (v: number | null) =>
+  v === null ? "—" : v.toLocaleString("en-US", { maximumFractionDigits: 2 });
 
-const categoriesConfig: CategoryConfig[] = [
+/** helpers para construir celdas rápidamente */
+const c = (
+  raw: number | null,
+  status: Status,
+  trend: Trend = "flat",
+  formatter: (v: number | null) => string = fmtNum
+): Cell => ({
+  value: formatter(raw),
+  raw,
+  status,
+  trend,
+});
+
+/** Datos exactos del Excel */
+const projects: Project[] = [
   {
-    key: "seguridad",
-    label: "SEGURIDAD",
-    color: "from-[#003366] to-[#004d99]",
-    bgLight: "bg-[#003366]/5",
-    border: "border-[#003366]/30",
-    text: "text-[#003366]",
-    subCategories: [
-      { name: "Índice de Frecuencia", minKpi: 0.5, unit: "" },
-      { name: "Índice de Severidad", minKpi: 10, unit: "" },
-      { name: "Cumplimiento Capacitación", minKpi: 95, unit: "%" },
-      { name: "Inspecciones Realizadas", minKpi: 90, unit: "%" },
-    ]
+    name: "Antamina",
+    data: {
+      cuasi: c(10, "bad", "down"),
+      negativa: c(167, "bad", "up"),
+      dispCam: c(91.9, "good", "flat", fmtPct),
+      dispPalas: c(93.1, "good", "flat", fmtPct),
+      ventaBP: c(126.2, "good", "up", fmtPct),
+      gpBP: c(68, "bad", "down", fmtPct),
+      aporteHrs: c(3.6, "good", "flat", fmtPct),
+      sobretiempoH: c(8775.32, "warn", "up"),
+      sobretiempoP: c(114.56, "good", "down"),
+    },
   },
   {
-    key: "disponibilidad",
-    label: "DISPONIBILIDAD",
-    color: "from-[#004d99] to-[#0066cc]",
-    bgLight: "bg-[#004d99]/5",
-    border: "border-[#004d99]/30",
-    text: "text-[#004d99]",
-    subCategories: [
-      { name: "Disponibilidad Física", minKpi: 92, unit: "%" },
-      { name: "MTTR", minKpi: 4, unit: "hrs" },
-      { name: "MTBF", minKpi: 150, unit: "hrs" },
-      { name: "Utilización", minKpi: 85, unit: "%" },
-    ]
+    name: "Antapaccay",
+    data: {
+      cuasi: c(3, "warn", "down"),
+      negativa: c(3, "good", "down"),
+      dispCam: c(90.2, "good", "flat", fmtPct),
+      dispPalas: c(94.9, "good", "flat", fmtPct),
+      ventaBP: c(101.3, "good", "flat", fmtPct),
+      gpBP: c(52, "bad", "down", fmtPct),
+      aporteHrs: c(0.9, "good", "flat", fmtPct),
+      sobretiempoH: c(2192.85, "good", "flat"),
+      sobretiempoP: c(701.73, "warn", "up"),
+    },
   },
   {
-    key: "gestion",
-    label: "GESTIÓN",
-    color: "from-[#4a5568] to-[#718096]",
-    bgLight: "bg-[#4a5568]/5",
-    border: "border-[#4a5568]/30",
-    text: "text-[#4a5568]",
-    subCategories: [
-      { name: "Cumplimiento PM", minKpi: 95, unit: "%" },
-      { name: "Backlog", minKpi: 30, unit: "días" },
-      { name: "OEE", minKpi: 80, unit: "%" },
-      { name: "Costo por Hora", minKpi: 150, unit: "USD" },
-    ]
+    name: "Bayovar",
+    data: {
+      cuasi: c(151, "bad", "up"),
+      negativa: c(30, "warn", "flat"),
+      dispCam: c(86.5, "bad", "down", fmtPct),
+      dispPalas: c(82.3, "bad", "down", fmtPct),
+      ventaBP: c(105.1, "good", "up", fmtPct),
+      gpBP: c(111, "good", "up", fmtPct),
+      aporteHrs: c(6.2, "warn", "up", fmtPct),
+      sobretiempoH: c(15030.93, "bad", "up"),
+      sobretiempoP: c(2730.7, "bad", "up"),
+    },
   },
   {
-    key: "riesgos",
-    label: "RIESGOS",
-    color: "from-[#2d3748] to-[#4a5568]",
-    bgLight: "bg-[#2d3748]/5",
-    border: "border-[#2d3748]/30",
-    text: "text-[#2d3748]",
-    subCategories: [
-      { name: "Riesgos Críticos", minKpi: 0, unit: "" },
-      { name: "Acciones Pendientes", minKpi: 5, unit: "" },
-      { name: "Cumplimiento Controles", minKpi: 95, unit: "%" },
-      { name: "Incidentes Mes", minKpi: 0, unit: "" },
-    ]
-  }
+    name: "Las Bambas",
+    data: {
+      cuasi: c(1, "good", "down"),
+      negativa: c(5, "good", "down"),
+      dispCam: c(85.1, "bad", "down", fmtPct),
+      dispPalas: c(null, "none", "flat", fmtPct),
+      ventaBP: c(100.3, "good", "flat", fmtPct),
+      gpBP: c(46, "bad", "down", fmtPct),
+      aporteHrs: c(5.2, "warn", "flat", fmtPct),
+      sobretiempoH: c(12614.75, "bad", "up"),
+      sobretiempoP: c(0, "good", "flat"),
+    },
+  },
+  {
+    name: "Toromocho",
+    data: {
+      cuasi: c(0, "good", "down"),
+      negativa: c(6, "good", "down"),
+      dispCam: c(86.7, "bad", "down", fmtPct),
+      dispPalas: c(null, "none", "flat", fmtPct),
+      ventaBP: c(103.9, "good", "flat", fmtPct),
+      gpBP: c(75, "warn", "flat", fmtPct),
+      aporteHrs: c(1.5, "good", "flat", fmtPct),
+      sobretiempoH: c(3598.95, "good", "flat"),
+      sobretiempoP: c(6.74, "good", "flat"),
+    },
+  },
+  {
+    name: "SPCC - Cuajone",
+    data: {
+      cuasi: c(0, "good", "down"),
+      negativa: c(0, "good", "down"),
+      dispCam: c(88.5, "warn", "flat", fmtPct),
+      dispPalas: c(92.4, "good", "flat", fmtPct),
+      ventaBP: c(null, "none", "flat", fmtPct),
+      gpBP: c(53, "bad", "down", fmtPct),
+      aporteHrs: c(0.2, "good", "flat", fmtPct),
+      sobretiempoH: c(597.15, "good", "flat"),
+      sobretiempoP: c(0, "good", "flat"),
+    },
+  },
+  {
+    name: "SPCC - Toquepala",
+    data: {
+      cuasi: c(2, "warn", "down"),
+      negativa: c(1, "good", "down"),
+      dispCam: c(90.8, "good", "flat", fmtPct),
+      dispPalas: c(92.6, "good", "flat", fmtPct),
+      ventaBP: c(43.0, "bad", "down", fmtPct),
+      gpBP: c(102, "good", "up", fmtPct),
+      aporteHrs: c(0.6, "good", "flat", fmtPct),
+      sobretiempoH: c(1521.28, "good", "flat"),
+      sobretiempoP: c(65, "good", "flat"),
+    },
+  },
+  {
+    name: "Cerro Verde",
+    data: {
+      cuasi: c(3, "warn", "down"),
+      negativa: c(4, "good", "down"),
+      dispCam: c(88.8, "warn", "flat", fmtPct),
+      dispPalas: c(null, "none", "flat", fmtPct),
+      ventaBP: c(106.5, "good", "up", fmtPct),
+      gpBP: c(38, "bad", "down", fmtPct),
+      aporteHrs: c(1.8, "good", "flat", fmtPct),
+      sobretiempoH: c(4248.33, "warn", "flat"),
+      sobretiempoP: c(74.69, "good", "flat"),
+    },
+  },
+  {
+    name: "Quellaveco",
+    data: {
+      cuasi: c(1, "good", "down"),
+      negativa: c(15, "warn", "flat"),
+      dispCam: c(null, "none", "flat", fmtPct),
+      dispPalas: c(null, "none", "flat", fmtPct),
+      ventaBP: c(96.3, "good", "flat", fmtPct),
+      gpBP: c(103, "good", "up", fmtPct),
+      aporteHrs: c(2.7, "good", "flat", fmtPct),
+      sobretiempoH: c(6620.06, "warn", "flat"),
+      sobretiempoP: c(396.59, "warn", "up"),
+    },
+  },
+  {
+    name: "Marcobre",
+    data: {
+      cuasi: c(0, "good", "down"),
+      negativa: c(9, "warn", "flat"),
+      dispCam: c(null, "none", "flat", fmtPct),
+      dispPalas: c(null, "none", "flat", fmtPct),
+      ventaBP: c(124.2, "good", "up", fmtPct),
+      gpBP: c(172, "good", "up", fmtPct),
+      aporteHrs: c(1.2, "good", "flat", fmtPct),
+      sobretiempoH: c(2859.36, "good", "flat"),
+      sobretiempoP: c(null, "none", "flat"),
+    },
+  },
+  {
+    name: "Taller Estructural LJ",
+    data: {
+      cuasi: c(2, "warn", "down"),
+      negativa: c(0, "good", "down"),
+      dispCam: c(null, "none", "flat", fmtPct),
+      dispPalas: c(null, "none", "flat", fmtPct),
+      ventaBP: c(45.6, "bad", "down", fmtPct),
+      gpBP: c(17, "bad", "down", fmtPct),
+      aporteHrs: c(7.1, "warn", "up", fmtPct),
+      sobretiempoH: c(17176.12, "bad", "up"),
+      sobretiempoP: c(1009.7, "bad", "up"),
+    },
+  },
+  {
+    name: "Armados Camiones",
+    data: {
+      cuasi: c(2, "warn", "down"),
+      negativa: c(2, "good", "down"),
+      dispCam: c(null, "none", "flat", fmtPct),
+      dispPalas: c(null, "none", "flat", fmtPct),
+      ventaBP: c(102.4, "good", "up", fmtPct),
+      gpBP: c(65, "bad", "down", fmtPct),
+      aporteHrs: c(2.1, "good", "flat", fmtPct),
+      sobretiempoH: c(5051.94, "warn", "flat"),
+      sobretiempoP: c(1.25, "good", "flat"),
+    },
+  },
+  {
+    name: "Armados Palas",
+    data: {
+      cuasi: c(1, "good", "down"),
+      negativa: c(0, "good", "down"),
+      dispCam: c(null, "none", "flat", fmtPct),
+      dispPalas: c(null, "none", "flat", fmtPct),
+      ventaBP: c(71.1, "warn", "down", fmtPct),
+      gpBP: c(39, "bad", "down", fmtPct),
+      aporteHrs: c(8.5, "warn", "up", fmtPct),
+      sobretiempoH: c(20706.21, "bad", "up"),
+      sobretiempoP: c(0, "good", "flat"),
+    },
+  },
+  {
+    name: "KRCP La Joya",
+    data: {
+      cuasi: c(3, "warn", "down"),
+      negativa: c(7, "warn", "down"),
+      dispCam: c(null, "none", "flat", fmtPct),
+      dispPalas: c(null, "none", "flat", fmtPct),
+      ventaBP: c(123.4, "good", "up", fmtPct),
+      gpBP: c(144, "good", "up", fmtPct),
+      aporteHrs: c(23.3, "bad", "up", fmtPct),
+      sobretiempoH: c(56500.25, "bad", "up"),
+      sobretiempoP: c(2203.95, "bad", "up"),
+    },
+  },
+  {
+    name: "KRCP Callao",
+    data: {
+      cuasi: c(7, "bad", "up"),
+      negativa: c(2, "good", "down"),
+      dispCam: c(null, "none", "flat", fmtPct),
+      dispPalas: c(null, "none", "flat", fmtPct),
+      ventaBP: c(91.4, "good", "flat", fmtPct),
+      gpBP: c(95, "good", "flat", fmtPct),
+      aporteHrs: c(29.7, "bad", "up", fmtPct),
+      sobretiempoH: c(71943.54, "bad", "up"),
+      sobretiempoP: c(3658.42, "bad", "up"),
+    },
+  },
+  {
+    name: "Operaciones Centralizadas",
+    data: {
+      cuasi: c(1, "good", "down"),
+      negativa: c(0, "good", "down"),
+      dispCam: c(null, "none", "flat", fmtPct),
+      dispPalas: c(null, "none", "flat", fmtPct),
+      ventaBP: c(null, "none", "flat", fmtPct),
+      gpBP: c(null, "none", "flat", fmtPct),
+      aporteHrs: c(5.3, "warn", "flat", fmtPct),
+      sobretiempoH: c(12955.28, "bad", "up"),
+      sobretiempoP: c(494.86, "warn", "flat"),
+    },
+  },
 ];
 
-// Tipos para los datos
-type KpiStatus = "ok" | "warning" | "alert";
-
-interface EquipoData {
-  value: number;
-  status: KpiStatus;
-  summary: string;
-  fileUrl: string;
+/** Definición de columnas KPI agrupadas por categoría */
+interface KpiCol {
+  key: string;
+  label: string;
+  sub?: string;
+}
+interface KpiGroup {
+  key: string;
+  label: string;
+  icon: typeof Shield;
+  accent: string; // bg de la cabecera del grupo
+  kpis: KpiCol[];
 }
 
-interface SubCategoryData {
-  [equipo: string]: EquipoData;
-}
+const groups: KpiGroup[] = [
+  {
+    key: "seg",
+    label: "Seguridad",
+    icon: Shield,
+    accent: "bg-emerald-700",
+    kpis: [
+      { key: "cuasi", label: "Cuasi Accidentes", sub: "N°" },
+      { key: "negativa", label: "Negativa Responsable", sub: "N°" },
+    ],
+  },
+  {
+    key: "ope",
+    label: "Operaciones",
+    icon: Activity,
+    accent: "bg-sky-700",
+    kpis: [
+      { key: "dispCam", label: "Disp. Camiones", sub: "Promedio" },
+      { key: "dispPalas", label: "Disp. Palas", sub: "Promedio" },
+    ],
+  },
+  {
+    key: "cost",
+    label: "Costos y Presupuesto",
+    icon: DollarSign,
+    accent: "bg-sky-600",
+    kpis: [
+      { key: "ventaBP", label: "Venta BP vs Reales", sub: "%" },
+      { key: "gpBP", label: "GP BP vs Reales", sub: "%" },
+    ],
+  },
+  {
+    key: "rrhh",
+    label: "Gestión Humana",
+    icon: Users,
+    accent: "bg-slate-600",
+    kpis: [
+      { key: "aporteHrs", label: "Aporte de Horas", sub: "%" },
+      { key: "sobretiempoH", label: "Sobretiempo Acumulado", sub: "Horas 04/25-03/26" },
+      { key: "sobretiempoP", label: "Sobretiempo Período", sub: "01/04 al 14/04 2026" },
+    ],
+  },
+];
 
-interface CategoryData {
-  [subCategory: string]: SubCategoryData;
-}
+/* ============================================================
+   UI HELPERS
+============================================================ */
 
-interface ProjectData {
-  [category: string]: CategoryData;
-}
-
-interface MatrixData {
-  [project: string]: ProjectData;
-}
-
-// Función para determinar el estado basado en KPI
-const getKpiStatus = (value: number, minKpi: number, isLowerBetter: boolean = false): KpiStatus => {
-  if (isLowerBetter) {
-    // Para métricas donde menor es mejor (MTTR, Backlog, Riesgos, Incidentes, Acciones Pendientes)
-    if (value < minKpi) return "ok";
-    if (value === minKpi) return "warning";
-    return "alert";
-  } else {
-    // Para métricas donde mayor es mejor (Disponibilidad, MTBF, etc.)
-    if (value > minKpi) return "ok";
-    if (value === minKpi) return "warning";
-    return "alert";
-  }
+const StatusDot = ({ status }: { status: Status }) => {
+  if (status === "none") return <span className="inline-block h-3 w-3 rounded-full bg-muted" />;
+  const map: Record<Exclude<Status, "none">, string> = {
+    good: "bg-emerald-500 shadow-[0_0_0_3px_hsl(var(--background))]",
+    warn: "bg-amber-400 shadow-[0_0_0_3px_hsl(var(--background))]",
+    bad: "bg-red-500 shadow-[0_0_0_3px_hsl(var(--background))]",
+  };
+  return <span className={cn("inline-block h-3 w-3 rounded-full ring-1 ring-black/10", map[status])} />;
 };
 
-// Métricas donde menor valor es mejor
-const lowerIsBetterMetrics = ["MTTR", "Backlog", "Riesgos Críticos", "Acciones Pendientes", "Incidentes Mes", "Costo por Hora", "Índice de Frecuencia", "Índice de Severidad"];
+const TrendIcon = ({ trend, status }: { trend?: Trend; status: Status }) => {
+  if (!trend || status === "none") return <Minus className="h-3.5 w-3.5 text-muted-foreground/50" />;
+  if (trend === "up")
+    return (
+      <ArrowUp
+        className={cn(
+          "h-3.5 w-3.5",
+          status === "good" ? "text-emerald-600" : status === "warn" ? "text-amber-500" : "text-red-600"
+        )}
+      />
+    );
+  if (trend === "down")
+    return (
+      <ArrowDown
+        className={cn(
+          "h-3.5 w-3.5",
+          status === "good" ? "text-emerald-600" : status === "warn" ? "text-amber-500" : "text-red-600"
+        )}
+      />
+    );
+  return <Minus className="h-3.5 w-3.5 text-muted-foreground/50" />;
+};
 
-// Generar datos simulados
-const generateMatrixData = (): MatrixData => {
-  const data: MatrixData = {};
-  
-  projects.forEach((project, projectIdx) => {
-    data[project] = {};
-    
-    categoriesConfig.forEach((category) => {
-      data[project][category.key] = {};
-      
-      category.subCategories.forEach((subCat, subIdx) => {
-        data[project][category.key][subCat.name] = {};
-        
-        equipos.forEach((equipo, equipoIdx) => {
-          // Generar valor aleatorio basado en el tipo de métrica
-          let value: number;
-          const isLowerBetter = lowerIsBetterMetrics.includes(subCat.name);
-          const baseVariation = (projectIdx + subIdx + equipoIdx) % 5;
-          
-          if (subCat.name === "Disponibilidad Física") {
-            value = 88 + baseVariation * 2; // 88-96%
-          } else if (subCat.name === "MTTR") {
-            value = 2.5 + baseVariation * 0.8; // 2.5-5.7 hrs
-          } else if (subCat.name === "MTBF") {
-            value = 120 + baseVariation * 20; // 120-200 hrs
-          } else if (subCat.name === "Utilización") {
-            value = 80 + baseVariation * 3; // 80-92%
-          } else if (subCat.name === "Cumplimiento PM") {
-            value = 90 + baseVariation * 2; // 90-98%
-          } else if (subCat.name === "Backlog") {
-            value = 20 + baseVariation * 5; // 20-40 días
-          } else if (subCat.name === "OEE") {
-            value = 75 + baseVariation * 4; // 75-91%
-          } else if (subCat.name === "Costo por Hora") {
-            value = 120 + baseVariation * 15; // 120-180 USD
-          } else if (subCat.name === "Riesgos Críticos") {
-            value = baseVariation % 3; // 0-2
-          } else if (subCat.name === "Acciones Pendientes") {
-            value = baseVariation * 2; // 0-8
-          } else if (subCat.name === "Cumplimiento Controles") {
-            value = 90 + baseVariation * 2; // 90-98%
-          } else if (subCat.name === "Incidentes Mes") {
-            value = baseVariation % 2; // 0-1
-          } else if (subCat.name === "Índice de Frecuencia") {
-            value = baseVariation * 0.3; // 0-1.2
-          } else if (subCat.name === "Índice de Severidad") {
-            value = baseVariation * 5; // 0-20
-          } else if (subCat.name === "Cumplimiento Capacitación") {
-            value = 90 + baseVariation * 2; // 90-98%
-          } else if (subCat.name === "Inspecciones Realizadas") {
-            value = 85 + baseVariation * 3; // 85-97%
-          } else {
-            value = 80 + baseVariation * 4;
-          }
-          
-          const status = getKpiStatus(value, subCat.minKpi, isLowerBetter);
-          
-          // Generar resumen descriptivo
-          let summary = "";
-          if (status === "ok") {
-            summary = `${subCat.name}: ${value}${subCat.unit}. Óptimo, supera objetivo de ${subCat.minKpi}${subCat.unit}.`;
-          } else if (status === "warning") {
-            summary = `${subCat.name}: ${value}${subCat.unit}. En el límite del objetivo mínimo.`;
-          } else {
-            summary = `${subCat.name}: ${value}${subCat.unit}. Alerta: por debajo del objetivo de ${subCat.minKpi}${subCat.unit}.`;
-          }
-          
-          data[project][category.key][subCat.name][equipo] = {
-            value: Math.round(value * 10) / 10,
-            status,
-            summary,
-            fileUrl: `https://sharepoint.example.com/${project}/${category.key}/${subCat.name.replace(/ /g, "_")}/${equipo.replace(/ /g, "_")}.pdf`
-          };
-        });
+/* ============================================================
+   COMPONENT
+============================================================ */
+
+export default function GerenciaReporte() {
+  const [search, setSearch] = useState("");
+
+  const filtered = useMemo(
+    () => projects.filter((p) => p.name.toLowerCase().includes(search.toLowerCase())),
+    [search]
+  );
+
+  // Resumen global
+  const summary = useMemo(() => {
+    let good = 0, warn = 0, bad = 0;
+    projects.forEach((p) => {
+      Object.values(p.data).forEach((cell) => {
+        if (cell.status === "good") good++;
+        else if (cell.status === "warn") warn++;
+        else if (cell.status === "bad") bad++;
       });
     });
-  });
-  
-  return data;
-};
-
-const matrixData = generateMatrixData();
-
-const statusStyles = {
-  ok: {
-    bg: "bg-emerald-100 hover:bg-emerald-200",
-    border: "border-emerald-300",
-    text: "text-emerald-800",
-    dot: "bg-emerald-500"
-  },
-  warning: {
-    bg: "bg-amber-100 hover:bg-amber-200",
-    border: "border-amber-300",
-    text: "text-amber-800",
-    dot: "bg-amber-500"
-  },
-  alert: {
-    bg: "bg-rose-100 hover:bg-rose-200",
-    border: "border-rose-300",
-    text: "text-rose-800",
-    dot: "bg-rose-500"
-  }
-};
-
-// Componente para la fila de equipo (nivel más bajo)
-interface EquipoRowProps {
-  equipo: string;
-  category: CategoryConfig;
-  subCategoryName: string;
-}
-
-const EquipoRow = ({ equipo, category, subCategoryName }: EquipoRowProps) => {
-  return (
-    <TooltipProvider>
-      <div
-        className="grid border-b border-[#003366]/10 bg-gradient-to-r from-slate-50/80 to-white hover:from-slate-100/80 hover:to-slate-50/50 transition-all duration-200"
-        style={{ gridTemplateColumns: `180px repeat(${projects.length}, 1fr)` }}
-      >
-        {/* Equipo Label */}
-        <div className={cn(
-          "flex items-center gap-3 p-3 pl-16 text-xs",
-          "bg-gradient-to-r from-[#003366]/5 to-transparent",
-          "border-l-4 border-[#003366]/20"
-        )}>
-          <div className="w-6 h-6 rounded-md bg-gradient-to-br from-[#003366] to-[#004d99] flex items-center justify-center shadow-sm">
-            <span className="text-[10px] font-bold text-white">{equipo.split(' ')[1]}</span>
-          </div>
-          <span className="font-semibold text-[#003366]">{equipo}</span>
-        </div>
-        
-        {/* KPI Cells */}
-        {projects.map((project) => {
-          const equipoData = matrixData[project][category.key][subCategoryName][equipo];
-          const styles = statusStyles[equipoData.status];
-          
-          return (
-            <div
-              key={project}
-              className="p-2 border-l border-[#003366]/5"
-            >
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className={cn(
-                    "p-3 rounded-xl border-2 h-full cursor-pointer",
-                    styles.bg,
-                    styles.border,
-                    "transition-all duration-300 group relative flex items-center justify-between",
-                    "hover:shadow-md hover:scale-[1.02]"
-                  )}>
-                    <div className="flex items-center gap-2">
-                      <div className={cn(
-                        "w-3 h-3 rounded-full flex-shrink-0 shadow-sm",
-                        styles.dot
-                      )} />
-                      <span className={cn("text-sm font-bold", styles.text)}>
-                        {equipoData.value}
-                      </span>
-                    </div>
-                    
-                    {/* File Link */}
-                    <a
-                      href={equipoData.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className={cn(
-                        "p-1.5 rounded-lg",
-                        "bg-white/80 hover:bg-[#003366] shadow-sm",
-                        "opacity-0 group-hover:opacity-100 transition-all duration-200",
-                        "text-[#003366] hover:text-white"
-                      )}
-                    >
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </a>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-xs bg-[#003366] text-white border-[#004d99]">
-                  <p className="text-xs">{equipoData.summary}</p>
-                  <p className="text-xs text-blue-200 mt-1">Click en ↗ para ver documento</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          );
-        })}
-      </div>
-    </TooltipProvider>
-  );
-};
-
-// Componente para la sub-categoría (segundo nivel)
-interface SubCategoryRowProps {
-  subCategory: SubCategory;
-  category: CategoryConfig;
-  isExpanded: boolean;
-  onToggle: () => void;
-}
-
-const SubCategoryRow = ({ subCategory, category, isExpanded, onToggle }: SubCategoryRowProps) => {
-  return (
-    <Collapsible open={isExpanded} onOpenChange={onToggle}>
-      <CollapsibleTrigger className="w-full">
-        <div
-          className={cn(
-            "grid border-b border-[#003366]/10 transition-all duration-300",
-            isExpanded 
-              ? "bg-gradient-to-r from-[#003366]/10 to-[#004d99]/5" 
-              : "bg-gradient-to-r from-slate-50 to-white hover:from-[#003366]/5 hover:to-slate-50"
-          )}
-          style={{ gridTemplateColumns: `180px repeat(${projects.length}, 1fr)` }}
-        >
-          {/* SubCategory Label */}
-          <div className={cn(
-            "flex items-center gap-3 p-4 pl-6 text-sm",
-            "border-l-4",
-            isExpanded ? "border-[#003366]" : "border-[#003366]/30"
-          )}>
-            <div className={cn(
-              "w-6 h-6 rounded-lg flex items-center justify-center transition-all duration-300",
-              isExpanded 
-                ? "bg-[#003366] text-white shadow-md" 
-                : "bg-[#003366]/10 text-[#003366]"
-            )}>
-              {isExpanded ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-            </div>
-            <div className="flex flex-col items-start">
-              <span className={cn(
-                "font-semibold text-sm transition-colors",
-                isExpanded ? "text-[#003366]" : "text-foreground"
-              )}>
-                {subCategory.name}
-              </span>
-              <span className="text-[10px] text-muted-foreground">
-                Objetivo mín: {subCategory.minKpi}{subCategory.unit}
-              </span>
-            </div>
-          </div>
-          
-          {/* Summary cells per project */}
-          {projects.map((project) => {
-            const subCatData = matrixData[project][category.key][subCategory.name];
-            const equipoValues = Object.values(subCatData);
-            const okCount = equipoValues.filter(e => e.status === "ok").length;
-            const warningCount = equipoValues.filter(e => e.status === "warning").length;
-            const alertCount = equipoValues.filter(e => e.status === "alert").length;
-            
-            return (
-              <div
-                key={project}
-                className="flex items-center justify-center gap-3 p-3 border-l border-[#003366]/10"
-              >
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-100/80">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm" />
-                  <span className="text-xs font-bold text-emerald-700">{okCount}</span>
-                </div>
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-100/80">
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm" />
-                  <span className="text-xs font-bold text-amber-700">{warningCount}</span>
-                </div>
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-rose-100/80">
-                  <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm" />
-                  <span className="text-xs font-bold text-rose-700">{alertCount}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </CollapsibleTrigger>
-      
-      <CollapsibleContent>
-        <div className="animate-fade-in bg-gradient-to-b from-slate-50/50 to-white">
-          {equipos.map((equipo) => (
-            <EquipoRow
-              key={equipo}
-              equipo={equipo}
-              category={category}
-              subCategoryName={subCategory.name}
-            />
-          ))}
-        </div>
-      </CollapsibleContent>
-    </Collapsible>
-  );
-};
-
-// Componente para la categoría principal (primer nivel)
-interface CategoryRowProps {
-  category: CategoryConfig;
-  isExpanded: boolean;
-  onToggle: () => void;
-  expandedSubCategories: Record<string, boolean>;
-  onToggleSubCategory: (subCatName: string) => void;
-}
-
-const CategoryRow = ({ 
-  category, 
-  isExpanded, 
-  onToggle, 
-  expandedSubCategories,
-  onToggleSubCategory 
-}: CategoryRowProps) => {
-  return (
-    <Collapsible open={isExpanded} onOpenChange={onToggle}>
-      {/* Category Header Row */}
-      <CollapsibleTrigger className="w-full">
-        <div className={cn(
-          "grid transition-all duration-300 hover:scale-[1.002]",
-          "border-b border-border/50"
-        )} style={{ gridTemplateColumns: `180px repeat(${projects.length}, 1fr)` }}>
-          {/* Category Label */}
-          <div className={cn(
-            "flex items-center gap-3 p-4 font-bold text-sm tracking-wider",
-            "bg-gradient-to-r", category.color,
-            "text-white"
-          )}>
-            {isExpanded ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
-            {category.label}
-          </div>
-          
-          {/* Project Summary Cells */}
-          {projects.map((project) => {
-            let okTotal = 0, warningTotal = 0, alertTotal = 0;
-            
-            category.subCategories.forEach(subCat => {
-              const subCatData = matrixData[project][category.key][subCat.name];
-              Object.values(subCatData).forEach(equipo => {
-                if (equipo.status === "ok") okTotal++;
-                else if (equipo.status === "warning") warningTotal++;
-                else alertTotal++;
-              });
-            });
-            
-            return (
-              <div
-                key={project}
-                className={cn(
-                  "flex items-center justify-center gap-3 p-4",
-                  category.bgLight,
-                  "border-l border-border/30"
-                )}
-              >
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                  <span className="text-sm font-bold text-emerald-700">{okTotal}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-                  <span className="text-sm font-bold text-amber-700">{warningTotal}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
-                  <span className="text-sm font-bold text-rose-700">{alertTotal}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </CollapsibleTrigger>
-
-      {/* Expanded SubCategories */}
-      <CollapsibleContent>
-        <div className="animate-fade-in">
-          {category.subCategories.map((subCat) => (
-            <SubCategoryRow
-              key={subCat.name}
-              subCategory={subCat}
-              category={category}
-              isExpanded={expandedSubCategories[`${category.key}-${subCat.name}`] || false}
-              onToggle={() => onToggleSubCategory(`${category.key}-${subCat.name}`)}
-            />
-          ))}
-        </div>
-      </CollapsibleContent>
-    </Collapsible>
-  );
-};
-
-const GerenciaReporte = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
-    seguridad: false,
-    disponibilidad: true,
-    gestion: false,
-    riesgos: false
-  });
-  const [expandedSubCategories, setExpandedSubCategories] = useState<Record<string, boolean>>({});
-
-  const toggleCategory = (key: string) => {
-    setExpandedCategories(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
-  };
-
-  const toggleSubCategory = (key: string) => {
-    setExpandedSubCategories(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
-  };
-
-  const expandAll = () => {
-    const allCategories: Record<string, boolean> = {};
-    const allSubCategories: Record<string, boolean> = {};
-    
-    categoriesConfig.forEach(cat => {
-      allCategories[cat.key] = true;
-      cat.subCategories.forEach(subCat => {
-        allSubCategories[`${cat.key}-${subCat.name}`] = true;
-      });
-    });
-    
-    setExpandedCategories(allCategories);
-    setExpandedSubCategories(allSubCategories);
-  };
-
-  const collapseAll = () => {
-    const allCategories: Record<string, boolean> = {};
-    categoriesConfig.forEach(cat => {
-      allCategories[cat.key] = false;
-    });
-    setExpandedCategories(allCategories);
-    setExpandedSubCategories({});
-  };
+    return { good, warn, bad, total: good + warn + bad };
+  }, []);
 
   return (
-    <main className="p-6 bg-background min-h-screen">
+    <div className="min-h-screen bg-background p-4 lg:p-6 space-y-5">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 rounded-xl bg-gradient-to-r from-primary to-accent">
-            <FileText className="h-6 w-6 text-primary-foreground" />
-          </div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Matriz de Reportes por Proyecto
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Panel · Gerencia · Reporte Consolidado
+          </p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-foreground mt-1">
+            BU Servicios Minería y KRCP
           </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Matriz consolidada de KPIs por proyecto · Corte: <span className="font-semibold text-foreground">14/04/2026</span>
+          </p>
         </div>
-        <p className="text-muted-foreground ml-14">
-          KPIs por equipo con indicadores de rendimiento vs objetivo mínimo
-        </p>
-      </div>
-
-      {/* Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 w-[200px] bg-card/50 backdrop-blur-sm border-border/50"
+              placeholder="Buscar proyecto..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 w-64"
             />
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 text-sm font-medium hover:bg-card transition-colors">
-            <Filter className="h-4 w-4" />
-            Filtrar
-          </button>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <button
-            onClick={expandAll}
-            className="px-4 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-colors"
-          >
-            Expandir Todo
-          </button>
-          <button
-            onClick={collapseAll}
-            className="px-4 py-2 rounded-lg bg-muted text-muted-foreground text-sm font-medium hover:bg-muted/80 transition-colors"
-          >
-            Colapsar Todo
-          </button>
+          <Button variant="outline" size="sm" className="gap-2">
+            <Download className="h-4 w-4" /> Exportar
+          </Button>
+          <Button size="sm" className="gap-2">
+            <ExternalLink className="h-4 w-4" /> SharePoint
+          </Button>
         </div>
       </div>
 
-      {/* Legend */}
-      <div className="flex flex-wrap items-center gap-6 mb-6 p-4 rounded-xl bg-card/50 backdrop-blur-sm border border-border/50">
-        <span className="text-sm font-medium text-muted-foreground">Estado KPI:</span>
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-emerald-500" />
-          <span className="text-sm text-muted-foreground">Supera objetivo</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-amber-500" />
-          <span className="text-sm text-muted-foreground">En el límite</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-rose-500" />
-          <span className="text-sm text-muted-foreground">Por debajo del objetivo</span>
-        </div>
-        <div className="h-4 w-px bg-border mx-2" />
-        <div className="flex items-center gap-2">
-          <ExternalLink className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">Ver documento</span>
-        </div>
+      {/* Summary cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <SummaryCard label="Proyectos" value={projects.length.toString()} accent="bg-primary/10 text-primary" />
+        <SummaryCard
+          label="KPIs en Verde"
+          value={`${summary.good}`}
+          sub={`${((summary.good / summary.total) * 100).toFixed(0)}% del total`}
+          accent="bg-emerald-100 text-emerald-700"
+          dot="bg-emerald-500"
+        />
+        <SummaryCard
+          label="En Alerta"
+          value={`${summary.warn}`}
+          sub={`${((summary.warn / summary.total) * 100).toFixed(0)}% del total`}
+          accent="bg-amber-100 text-amber-700"
+          dot="bg-amber-400"
+        />
+        <SummaryCard
+          label="Críticos"
+          value={`${summary.bad}`}
+          sub={`${((summary.bad / summary.total) * 100).toFixed(0)}% del total`}
+          accent="bg-red-100 text-red-700"
+          dot="bg-red-500"
+        />
       </div>
 
-      {/* Matrix Table */}
-      <div className="rounded-2xl border border-border/50 overflow-hidden bg-card/30 backdrop-blur-sm shadow-elevated">
-        {/* Header Row */}
-        <div
-          className="grid bg-gradient-to-r from-sidebar-background to-sidebar-accent"
-          style={{ gridTemplateColumns: `180px repeat(${projects.length}, 1fr)` }}
-        >
-          <div className="p-4 font-bold text-sidebar-foreground text-sm border-r border-sidebar-border/50">
-            Categoría / Equipo
+      {/* Leyenda */}
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 rounded-lg border bg-card text-sm">
+        <span className="font-semibold text-foreground">Leyenda:</span>
+        <span className="flex items-center gap-2"><StatusDot status="good" /> Cumple</span>
+        <span className="flex items-center gap-2"><StatusDot status="warn" /> En alerta</span>
+        <span className="flex items-center gap-2"><StatusDot status="bad" /> Crítico</span>
+        <span className="flex items-center gap-2"><StatusDot status="none" /> Sin dato</span>
+        <span className="flex items-center gap-2 ml-auto text-muted-foreground">
+          <ArrowUp className="h-3.5 w-3.5" /> sube · <ArrowDown className="h-3.5 w-3.5" /> baja · <Minus className="h-3.5 w-3.5" /> estable
+        </span>
+      </div>
+
+      {/* Matrix */}
+      <TooltipProvider delayDuration={150}>
+        <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              {/* Group header */}
+              <thead>
+                <tr>
+                  <th className="sticky left-0 z-30 bg-card border-b border-r px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground min-w-[220px]">
+                    KPI / Proyecto
+                  </th>
+                  {projects
+                    .filter((p) => filtered.includes(p))
+                    .map((p) => (
+                      <th
+                        key={p.name}
+                        className="border-b border-r px-3 py-3 bg-primary/5 text-xs font-bold uppercase tracking-wide text-primary whitespace-nowrap"
+                      >
+                        {p.name}
+                      </th>
+                    ))}
+                </tr>
+              </thead>
+
+              <tbody>
+                {groups.map((g) => (
+                  <>
+                    {/* Group divider row */}
+                    <tr key={`g-${g.key}`}>
+                      <td
+                        colSpan={1 + filtered.length}
+                        className={cn("px-4 py-2 text-white font-bold text-xs uppercase tracking-wider", g.accent)}
+                      >
+                        <div className="flex items-center gap-2">
+                          <g.icon className="h-4 w-4" />
+                          {g.label}
+                        </div>
+                      </td>
+                    </tr>
+
+                    {g.kpis.map((kpi, kpiIdx) => (
+                      <tr
+                        key={kpi.key}
+                        className={cn(
+                          "transition-colors hover:bg-muted/40",
+                          kpiIdx % 2 === 1 && "bg-muted/20"
+                        )}
+                      >
+                        <td className="sticky left-0 z-20 bg-inherit border-r border-b px-4 py-2.5">
+                          <div className="font-semibold text-foreground text-[13px]">{kpi.label}</div>
+                          {kpi.sub && (
+                            <div className="text-[11px] text-muted-foreground">{kpi.sub}</div>
+                          )}
+                        </td>
+                        {filtered.map((p) => {
+                          const cell = p.data[kpi.key];
+                          if (!cell)
+                            return (
+                              <td key={p.name} className="border-r border-b px-3 py-2.5 text-center">
+                                —
+                              </td>
+                            );
+                          return (
+                            <td key={p.name} className="border-r border-b px-3 py-2.5">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="flex items-center justify-center gap-2 cursor-default">
+                                    <StatusDot status={cell.status} />
+                                    <span
+                                      className={cn(
+                                        "font-mono font-semibold tabular-nums text-[13px]",
+                                        cell.status === "bad" && "text-red-600",
+                                        cell.status === "warn" && "text-amber-600",
+                                        cell.status === "good" && "text-foreground",
+                                        cell.status === "none" && "text-muted-foreground"
+                                      )}
+                                    >
+                                      {cell.value}
+                                    </span>
+                                    <TrendIcon trend={cell.trend} status={cell.status} />
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent side="top">
+                                  <div className="text-xs">
+                                    <div className="font-semibold">{p.name}</div>
+                                    <div className="text-muted-foreground">{kpi.label}: {cell.value}</div>
+                                  </div>
+                                </TooltipContent>
+                              </Tooltip>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </>
+                ))}
+              </tbody>
+            </table>
           </div>
-          {projects.map((project) => (
-            <div
-              key={project}
-              className={cn(
-                "p-4 font-bold text-center text-sidebar-foreground text-sm",
-                "border-r border-sidebar-border/50 last:border-r-0"
-              )}
-            >
-              {project}
-            </div>
-          ))}
         </div>
+      </TooltipProvider>
 
-        {/* Category Rows */}
-        <div className="divide-y divide-border/30">
-          {categoriesConfig.map((category) => (
-            <CategoryRow
-              key={category.key}
-              category={category}
-              isExpanded={expandedCategories[category.key]}
-              onToggle={() => toggleCategory(category.key)}
-              expandedSubCategories={expandedSubCategories}
-              onToggleSubCategory={toggleSubCategory}
-            />
-          ))}
-        </div>
+      {/* Notas */}
+      <div className="rounded-lg border bg-muted/30 p-4 space-y-1">
+        <div className="text-xs font-bold uppercase tracking-wider text-foreground">Notas</div>
+        <ul className="text-xs text-muted-foreground space-y-0.5 list-disc list-inside">
+          <li>Negativa Responsable contabilizada desde Setiembre 2025.</li>
+          <li>Sobretiempo acumulado del período 04/2025 al 03/2026 (corte 31/03/2026).</li>
+          <li>Disponibilidades de Camiones y Palas: promedio del período hasta 14/04/2026.</li>
+        </ul>
       </div>
-
-      {/* Footer Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-        {categoriesConfig.map((category) => {
-          let okCount = 0, warningCount = 0, alertCount = 0;
-          projects.forEach(project => {
-            category.subCategories.forEach(subCat => {
-              Object.values(matrixData[project][category.key][subCat.name]).forEach(equipo => {
-                if (equipo.status === "ok") okCount++;
-                else if (equipo.status === "warning") warningCount++;
-                else alertCount++;
-              });
-            });
-          });
-          
-          return (
-            <div
-              key={category.key}
-              className={cn(
-                "p-4 rounded-xl border",
-                category.bgLight,
-                category.border
-              )}
-            >
-              <div className={cn("text-lg font-bold mb-1", category.text)}>
-                {category.label}
-              </div>
-              <div className="flex items-center gap-4 text-sm">
-                <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  {okCount}
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-amber-500" />
-                  {warningCount}
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-rose-500" />
-                  {alertCount}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </main>
+    </div>
   );
-};
+}
 
-export default GerenciaReporte;
+/* ============================================================
+   SUB-COMPONENTS
+============================================================ */
+
+function SummaryCard({
+  label,
+  value,
+  sub,
+  accent,
+  dot,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  accent: string;
+  dot?: string;
+}) {
+  return (
+    <div className="rounded-xl border bg-card p-4 flex items-center gap-4">
+      <div className={cn("h-12 w-12 rounded-lg flex items-center justify-center font-bold text-lg", accent)}>
+        {dot ? <span className={cn("h-3 w-3 rounded-full", dot)} /> : value.charAt(0)}
+      </div>
+      <div className="min-w-0">
+        <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</div>
+        <div className="text-2xl font-bold text-foreground leading-tight">{value}</div>
+        {sub && <div className="text-[11px] text-muted-foreground">{sub}</div>}
+      </div>
+    </div>
+  );
+}
