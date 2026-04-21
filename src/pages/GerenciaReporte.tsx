@@ -473,6 +473,15 @@ export default function GerenciaReporte() {
         />
       </div>
 
+      {/* View selector */}
+      <div className="flex flex-wrap items-center gap-2 p-2 rounded-lg border bg-card">
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-2">Vista:</span>
+        <ViewBtn active={view === "matrix"} onClick={() => setView("matrix")} icon={TableIcon} label="Matriz" />
+        <ViewBtn active={view === "cards"} onClick={() => setView("cards")} icon={LayoutGrid} label="Opción 1 · Tarjetas" />
+        <ViewBtn active={view === "heatmap"} onClick={() => setView("heatmap")} icon={Flame} label="Opción 2 · Heatmap" />
+        <ViewBtn active={view === "kanban"} onClick={() => setView("kanban")} icon={Columns3} label="Opción 3 · Kanban" />
+      </div>
+
       {/* Leyenda */}
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 rounded-lg border bg-card text-sm">
         <span className="font-semibold text-foreground">Leyenda:</span>
