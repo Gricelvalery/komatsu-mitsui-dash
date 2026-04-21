@@ -545,3 +545,363 @@ function SummaryCard({
     </div>
   );
 }
+
+/* ---------- View Switch Button ---------- */
+function ViewBtn({
+  active,
+  onClick,
+  icon: Icon,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: typeof LayoutGrid;
+  label: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all",
+        active
+          ? "bg-primary text-primary-foreground shadow-sm"
+          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+      )}
+    >
+      <Icon className="h-3.5 w-3.5" />
+      {label}
+    </button>
+  );
+}
+
+/* ============================================================
+   VIEW: MATRIX (proyectos verticales, KPIs en columnas)
+============================================================ */
+function MatrixView({ filtered }: { filtered: Project[] }) {
+  return (
+    <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr>
+              <th
+                rowSpan={2}
+                className="sticky left-0 z-30 bg-card border-b border-r px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground min-w-[220px]"
+              >
+                Proyecto / KPI
+              </th>
+              {groups.map((g) => (
+                <th
+                  key={g.key}
+                  colSpan={g.kpis.length}
+                  className={cn(
+                    "border-b border-r px-3 py-2 text-white text-xs font-bold uppercase tracking-wider text-center",
+                    g.accent
+                  )}
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <g.icon className="h-4 w-4" />
+                    {g.label}
+                  </div>
+                </th>
+              ))}
+            </tr>
+            <tr>
+              {groups.flatMap((g) =>
+                g.kpis.map((kpi) => (
+                  <th
+                    key={kpi.key}
+                    className="border-b border-r px-3 py-2 bg-primary/5 text-[11px] font-semibold text-primary whitespace-nowrap align-bottom"
+                  >
+                    <div className="leading-tight">{kpi.label}</div>
+                    {kpi.sub && (
+                      <div className="text-[10px] font-normal text-muted-foreground normal-case">
+                        {kpi.sub}
+                      </div>
+                    )}
+                  </th>
+                ))
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((p, idx) => (
+              <tr
+                key={p.name}
+                className={cn(
+                  "transition-colors hover:bg-muted/40 group",
+                  idx % 2 === 1 && "bg-muted/20"
+                )}
+              >
+                <td className="sticky left-0 z-20 bg-card group-hover:bg-muted/40 border-r border-b px-4 py-2.5 font-semibold text-foreground text-[13px] whitespace-nowrap">
+                  {p.name}
+                </td>
+                {groups.flatMap((g) =>
+                  g.kpis.map((kpi) => {
+                    const cell = p.data[kpi.key];
+                    if (!cell)
+                      return (
+                        <td key={kpi.key} className="border-r border-b px-3 py-2.5 text-center text-muted-foreground">
+                          —
+                        </td>
+                      );
+                    return (
+                      <td key={kpi.key} className="border-r border-b px-3 py-2.5">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center justify-center gap-2 cursor-default">
+                              <StatusDot status={cell.status} />
+                              <span
+                                className={cn(
+                                  "font-mono font-semibold tabular-nums text-[13px]",
+                                  cell.status === "bad" && "text-red-600",
+                                  cell.status === "warn" && "text-amber-600",
+                                  cell.status === "good" && "text-foreground",
+                                  cell.status === "none" && "text-muted-foreground"
+                                )}
+                              >
+                                {cell.value}
+                              </span>
+                              <TrendIcon trend={cell.trend} status={cell.status} />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent side="top">
+                            <div className="text-xs">
+                              <div className="font-semibold">{p.name}</div>
+                              <div className="text-muted-foreground">{kpi.label}: {cell.value}</div>
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </td>
+                    );
+                  })
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   VIEW A · CARDS (un scorecard por proyecto)
+============================================================ */
+function CardsView({ filtered }: { filtered: Project[] }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      {filtered.map((p) => {
+        const cells = Object.values(p.data);
+        const good = cells.filter((c) => c.status === "good").length;
+        const total = cells.filter((c) => c.status !== "none").length;
+        const health = total ? Math.round((good / total) * 100) : 0;
+        const healthColor =
+          health >= 70 ? "bg-emerald-500" : health >= 40 ? "bg-amber-400" : "bg-red-500";
+
+        return (
+          <div key={p.name} className="rounded-xl border bg-card shadow-sm overflow-hidden flex flex-col">
+            {/* Card header */}
+            <div className="px-4 py-3 border-b bg-primary/5 flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-foreground text-sm">{p.name}</h3>
+                <p className="text-[11px] text-muted-foreground">Salud General</p>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-primary tabular-nums">{health}%</div>
+              </div>
+            </div>
+            {/* Health bar */}
+            <div className="h-1.5 bg-muted">
+              <div className={cn("h-full transition-all", healthColor)} style={{ width: `${health}%` }} />
+            </div>
+            {/* KPIs grid */}
+            <div className="p-3 grid grid-cols-3 gap-2 flex-1">
+              {groups.flatMap((g) =>
+                g.kpis.map((kpi) => {
+                  const cell = p.data[kpi.key];
+                  if (!cell) return null;
+                  return (
+                    <div
+                      key={kpi.key}
+                      className={cn(
+                        "rounded-lg border p-2 flex flex-col gap-1 transition-colors",
+                        cell.status === "good" && "border-emerald-200 bg-emerald-50/50",
+                        cell.status === "warn" && "border-amber-200 bg-amber-50/50",
+                        cell.status === "bad" && "border-red-200 bg-red-50/50",
+                        cell.status === "none" && "border-border bg-muted/30"
+                      )}
+                    >
+                      <div className="flex items-center justify-between">
+                        <StatusDot status={cell.status} />
+                        <TrendIcon trend={cell.trend} status={cell.status} />
+                      </div>
+                      <div className="font-mono font-bold text-sm tabular-nums leading-tight">{cell.value}</div>
+                      <div className="text-[10px] text-muted-foreground leading-tight line-clamp-2">{kpi.label}</div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ============================================================
+   VIEW B · HEATMAP (densa, fondo de color por celda)
+============================================================ */
+function HeatmapView({ filtered }: { filtered: Project[] }) {
+  const cellBg = (s: Status) =>
+    s === "good"
+      ? "bg-emerald-500/15 hover:bg-emerald-500/25"
+      : s === "warn"
+      ? "bg-amber-400/20 hover:bg-amber-400/30"
+      : s === "bad"
+      ? "bg-red-500/20 hover:bg-red-500/30"
+      : "bg-muted/30 hover:bg-muted/50";
+
+  return (
+    <div className="rounded-xl border bg-[hsl(220_15%_12%)] shadow-sm overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-xs font-mono">
+          <thead>
+            <tr>
+              <th className="sticky left-0 z-30 bg-[hsl(220_15%_12%)] border-b border-white/10 px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-white/60 min-w-[200px]">
+                PROYECTO
+              </th>
+              {groups.flatMap((g) =>
+                g.kpis.map((kpi) => (
+                  <th
+                    key={kpi.key}
+                    className="border-b border-l border-white/10 px-2 py-2 text-[10px] font-bold uppercase tracking-wider text-white/70 whitespace-nowrap text-center"
+                  >
+                    {kpi.label}
+                  </th>
+                ))
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((p) => (
+              <tr key={p.name} className="border-b border-white/5">
+                <td className="sticky left-0 z-20 bg-[hsl(220_15%_12%)] px-3 py-2 font-bold text-white text-[12px] uppercase tracking-wide">
+                  {p.name}
+                </td>
+                {groups.flatMap((g) =>
+                  g.kpis.map((kpi) => {
+                    const cell = p.data[kpi.key];
+                    if (!cell)
+                      return (
+                        <td key={kpi.key} className="border-l border-white/5 px-2 py-2 text-center text-white/30">
+                          —
+                        </td>
+                      );
+                    return (
+                      <td
+                        key={kpi.key}
+                        className={cn(
+                          "border-l border-white/5 px-2 py-2 text-center transition-colors cursor-default",
+                          cellBg(cell.status)
+                        )}
+                      >
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center justify-center gap-1">
+                              <span
+                                className={cn(
+                                  "font-bold tabular-nums",
+                                  cell.status === "bad" && "text-red-300",
+                                  cell.status === "warn" && "text-amber-200",
+                                  cell.status === "good" && "text-emerald-200",
+                                  cell.status === "none" && "text-white/40"
+                                )}
+                              >
+                                {cell.value}
+                              </span>
+                              {cell.trend === "up" && <ArrowUp className="h-3 w-3 text-white/60" />}
+                              {cell.trend === "down" && <ArrowDown className="h-3 w-3 text-white/60" />}
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <div className="text-xs">
+                              <div className="font-semibold">{p.name}</div>
+                              <div className="text-muted-foreground">{kpi.label}: {cell.value}</div>
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </td>
+                    );
+                  })
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   VIEW C · KANBAN (3 columnas por estado)
+============================================================ */
+function KanbanView({ filtered }: { filtered: Project[] }) {
+  type Item = { project: string; kpi: string; group: string; cell: Cell };
+  const items: Item[] = [];
+  filtered.forEach((p) => {
+    groups.forEach((g) => {
+      g.kpis.forEach((kpi) => {
+        const cell = p.data[kpi.key];
+        if (cell && cell.status !== "none") {
+          items.push({ project: p.name, kpi: kpi.label, group: g.label, cell });
+        }
+      });
+    });
+  });
+
+  const cols: { key: Status; label: string; color: string; border: string }[] = [
+    { key: "bad", label: "Críticos", color: "bg-red-500", border: "border-red-200" },
+    { key: "warn", label: "En alerta", color: "bg-amber-400", border: "border-amber-200" },
+    { key: "good", label: "Cumple", color: "bg-emerald-500", border: "border-emerald-200" },
+  ];
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {cols.map((col) => {
+        const colItems = items.filter((i) => i.cell.status === col.key);
+        return (
+          <div key={col.key} className="rounded-xl border bg-card overflow-hidden flex flex-col">
+            <div className="px-4 py-3 border-b flex items-center justify-between bg-muted/30">
+              <div className="flex items-center gap-2">
+                <span className={cn("h-3 w-3 rounded-full", col.color)} />
+                <h3 className="font-bold text-foreground text-sm uppercase tracking-wider">{col.label}</h3>
+              </div>
+              <Badge variant="secondary" className="font-mono">{colItems.length}</Badge>
+            </div>
+            <div className="p-3 space-y-2 max-h-[700px] overflow-y-auto">
+              {colItems.length === 0 && (
+                <p className="text-xs text-muted-foreground text-center py-8">Sin elementos</p>
+              )}
+              {colItems.map((it, idx) => (
+                <div
+                  key={`${it.project}-${it.kpi}-${idx}`}
+                  className={cn("rounded-lg border bg-background p-3 hover:shadow-md transition-shadow", col.border)}
+                >
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <div className="font-semibold text-foreground text-sm leading-tight">{it.project}</div>
+                    <TrendIcon trend={it.cell.trend} status={it.cell.status} />
+                  </div>
+                  <div className="text-[11px] text-muted-foreground mb-1">{it.group} · {it.kpi}</div>
+                  <div className="font-mono font-bold text-lg tabular-nums text-foreground">{it.cell.value}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
