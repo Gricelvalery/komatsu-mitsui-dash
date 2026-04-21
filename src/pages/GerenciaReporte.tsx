@@ -483,96 +483,108 @@ export default function GerenciaReporte() {
         <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-sm">
-              {/* Group header */}
+              {/* Group header row */}
               <thead>
                 <tr>
-                  <th className="sticky left-0 z-30 bg-card border-b border-r px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground min-w-[220px]">
-                    KPI / Proyecto
+                  <th
+                    rowSpan={2}
+                    className="sticky left-0 z-30 bg-card border-b border-r px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground min-w-[220px]"
+                  >
+                    Proyecto / KPI
                   </th>
-                  {projects
-                    .filter((p) => filtered.includes(p))
-                    .map((p) => (
+                  {groups.map((g) => (
+                    <th
+                      key={g.key}
+                      colSpan={g.kpis.length}
+                      className={cn(
+                        "border-b border-r px-3 py-2 text-white text-xs font-bold uppercase tracking-wider text-center",
+                        g.accent
+                      )}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <g.icon className="h-4 w-4" />
+                        {g.label}
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+                <tr>
+                  {groups.flatMap((g) =>
+                    g.kpis.map((kpi) => (
                       <th
-                        key={p.name}
-                        className="border-b border-r px-3 py-3 bg-primary/5 text-xs font-bold uppercase tracking-wide text-primary whitespace-nowrap"
+                        key={kpi.key}
+                        className="border-b border-r px-3 py-2 bg-primary/5 text-[11px] font-semibold text-primary whitespace-nowrap align-bottom"
                       >
-                        {p.name}
+                        <div className="leading-tight">{kpi.label}</div>
+                        {kpi.sub && (
+                          <div className="text-[10px] font-normal text-muted-foreground normal-case">
+                            {kpi.sub}
+                          </div>
+                        )}
                       </th>
-                    ))}
+                    ))
+                  )}
                 </tr>
               </thead>
 
               <tbody>
-                {groups.map((g) => (
-                  <>
-                    {/* Group divider row */}
-                    <tr key={`g-${g.key}`}>
-                      <td
-                        colSpan={1 + filtered.length}
-                        className={cn("px-4 py-2 text-white font-bold text-xs uppercase tracking-wider", g.accent)}
-                      >
-                        <div className="flex items-center gap-2">
-                          <g.icon className="h-4 w-4" />
-                          {g.label}
-                        </div>
-                      </td>
-                    </tr>
-
-                    {g.kpis.map((kpi, kpiIdx) => (
-                      <tr
-                        key={kpi.key}
-                        className={cn(
-                          "transition-colors hover:bg-muted/40",
-                          kpiIdx % 2 === 1 && "bg-muted/20"
-                        )}
-                      >
-                        <td className="sticky left-0 z-20 bg-inherit border-r border-b px-4 py-2.5">
-                          <div className="font-semibold text-foreground text-[13px]">{kpi.label}</div>
-                          {kpi.sub && (
-                            <div className="text-[11px] text-muted-foreground">{kpi.sub}</div>
-                          )}
-                        </td>
-                        {filtered.map((p) => {
-                          const cell = p.data[kpi.key];
-                          if (!cell)
-                            return (
-                              <td key={p.name} className="border-r border-b px-3 py-2.5 text-center">
-                                —
-                              </td>
-                            );
+                {filtered.map((p, idx) => (
+                  <tr
+                    key={p.name}
+                    className={cn(
+                      "transition-colors hover:bg-muted/40 group",
+                      idx % 2 === 1 && "bg-muted/20"
+                    )}
+                  >
+                    <td className="sticky left-0 z-20 bg-card group-hover:bg-muted/40 border-r border-b px-4 py-2.5 font-semibold text-foreground text-[13px] whitespace-nowrap">
+                      {p.name}
+                    </td>
+                    {groups.flatMap((g) =>
+                      g.kpis.map((kpi) => {
+                        const cell = p.data[kpi.key];
+                        if (!cell)
                           return (
-                            <td key={p.name} className="border-r border-b px-3 py-2.5">
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div className="flex items-center justify-center gap-2 cursor-default">
-                                    <StatusDot status={cell.status} />
-                                    <span
-                                      className={cn(
-                                        "font-mono font-semibold tabular-nums text-[13px]",
-                                        cell.status === "bad" && "text-red-600",
-                                        cell.status === "warn" && "text-amber-600",
-                                        cell.status === "good" && "text-foreground",
-                                        cell.status === "none" && "text-muted-foreground"
-                                      )}
-                                    >
-                                      {cell.value}
-                                    </span>
-                                    <TrendIcon trend={cell.trend} status={cell.status} />
-                                  </div>
-                                </TooltipTrigger>
-                                <TooltipContent side="top">
-                                  <div className="text-xs">
-                                    <div className="font-semibold">{p.name}</div>
-                                    <div className="text-muted-foreground">{kpi.label}: {cell.value}</div>
-                                  </div>
-                                </TooltipContent>
-                              </Tooltip>
+                            <td
+                              key={kpi.key}
+                              className="border-r border-b px-3 py-2.5 text-center text-muted-foreground"
+                            >
+                              —
                             </td>
                           );
-                        })}
-                      </tr>
-                    ))}
-                  </>
+                        return (
+                          <td key={kpi.key} className="border-r border-b px-3 py-2.5">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex items-center justify-center gap-2 cursor-default">
+                                  <StatusDot status={cell.status} />
+                                  <span
+                                    className={cn(
+                                      "font-mono font-semibold tabular-nums text-[13px]",
+                                      cell.status === "bad" && "text-red-600",
+                                      cell.status === "warn" && "text-amber-600",
+                                      cell.status === "good" && "text-foreground",
+                                      cell.status === "none" && "text-muted-foreground"
+                                    )}
+                                  >
+                                    {cell.value}
+                                  </span>
+                                  <TrendIcon trend={cell.trend} status={cell.status} />
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="top">
+                                <div className="text-xs">
+                                  <div className="font-semibold">{p.name}</div>
+                                  <div className="text-muted-foreground">
+                                    {kpi.label}: {cell.value}
+                                  </div>
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </td>
+                        );
+                      })
+                    )}
+                  </tr>
                 ))}
               </tbody>
             </table>
