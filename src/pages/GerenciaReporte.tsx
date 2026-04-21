@@ -393,6 +393,7 @@ const TrendIcon = ({ trend, status }: { trend?: Trend; status: Status }) => {
 
 export default function GerenciaReporte() {
   const [search, setSearch] = useState("");
+  const [view, setView] = useState<ViewMode>("matrix");
 
   const filtered = useMemo(
     () => projects.filter((p) => p.name.toLowerCase().includes(search.toLowerCase())),
