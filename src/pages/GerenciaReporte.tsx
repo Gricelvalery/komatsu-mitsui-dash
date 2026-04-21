@@ -19,8 +19,14 @@ import {
   Users,
   ExternalLink,
   Download,
+  LayoutGrid,
+  Table as TableIcon,
+  Flame,
+  Columns3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+type ViewMode = "matrix" | "cards" | "heatmap" | "kanban";
 
 /* ============================================================
    DATA – BU Servicios Minería y KRCP (Excel Abr-26)
