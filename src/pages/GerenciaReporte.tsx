@@ -27,6 +27,7 @@ import {
   PencilLine,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import LlenadoDialog from "@/components/gerencia/LlenadoDialog";
 
 type ViewMode = "matrix" | "cards" | "heatmap" | "kanban";
 
