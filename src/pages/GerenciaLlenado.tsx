@@ -1,17 +1,12 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { format, addDays } from "date-fns";
+import { es } from "date-fns/locale";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Sheet,
   SheetContent,
@@ -28,6 +23,8 @@ import {
 } from "@/components/ui/accordion";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Shield,
   Activity,
@@ -43,6 +40,10 @@ import {
   PencilLine,
   SplitSquareHorizontal,
   CircleDot,
+  CalendarIcon,
+  Lock,
+  History,
+  RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -64,7 +65,7 @@ interface AreaDef {
   key: string;
   label: string;
   icon: typeof Shield;
-  color: string; // tailwind chip
+  color: string;
   kpis: KpiDef[];
 }
 
@@ -129,11 +130,22 @@ const projectsList = [
 
 type FormState = Record<string, Record<string, { value: string; status: Status; comment: string }>>;
 
-const initialState: FormState = projectsList.reduce((acc, p) => {
-  acc[p] = {};
-  areas.forEach((a) => a.kpis.forEach((k) => (acc[p][k.key] = { value: "", status: "none", comment: "" })));
-  return acc;
-}, {} as FormState);
+const buildInitialState = (): FormState =>
+  projectsList.reduce((acc, p) => {
+    acc[p] = {};
+    areas.forEach((a) => a.kpis.forEach((k) => (acc[p][k.key] = { value: "", status: "none", comment: "" })));
+    return acc;
+  }, {} as FormState);
+
+/** Historial simulado de fechas de corte (más reciente al inicio) */
+const PREVIOUS_CUTOFFS = [
+  new Date(2026, 3, 14), // 14/04/2026
+  new Date(2026, 2, 31), // 31/03/2026
+  new Date(2026, 2, 17), // 17/03/2026
+];
+
+/** Calcula la siguiente fecha de corte sumando 14 días a la última */
+const getNextCutoff = (history: Date[]) => addDays(history[0], 14);
 
 /* ============================================================
    SHARED UI
@@ -206,13 +218,123 @@ const ModeBtn = ({
 );
 
 /* ============================================================
+   GATE · Selección de área
+============================================================ */
+
+function AreaGate({
+  cutoffDate,
+  onPick,
+  cutoffHistory,
+}: {
+  cutoffDate: Date;
+  onPick: (areaKey: string) => void;
+  cutoffHistory: Date[];
+}) {
+  return (
+    <div className="min-h-screen bg-background p-4 lg:p-6 flex items-center justify-center">
+      <div className="w-full max-w-4xl space-y-6">
+        <div className="text-center space-y-2">
+          <Link
+            to="/gerencia/reporte"
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition"
+          >
+            <ArrowLeft className="h-3 w-3" /> Volver al reporte consolidado
+          </Link>
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Gerencia · Llenado de Datos
+          </p>
+          <h1 className="text-3xl font-bold text-foreground">Selecciona tu área</h1>
+          <p className="text-sm text-muted-foreground max-w-xl mx-auto">
+            Cada responsable solo accede a los KPIs de su área. La información del resto permanece privada.
+          </p>
+        </div>
+
+        {/* Cutoff banner */}
+        <div className="rounded-xl border-2 border-primary/30 bg-primary/5 p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+              <CalendarIcon className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
+                Fecha de corte vigente
+              </div>
+              <div className="text-xl font-bold text-primary">
+                {format(cutoffDate, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: es })}
+              </div>
+              <div className="text-[11px] text-muted-foreground">
+                Última registrada: {format(cutoffHistory[0], "dd/MM/yyyy")} · ciclo quincenal (+14 días)
+              </div>
+            </div>
+          </div>
+          <Badge variant="outline" className="gap-1">
+            <RefreshCw className="h-3 w-3" /> Auto-actualizable
+          </Badge>
+        </div>
+
+        {/* Grid de áreas */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {areas.map((a) => {
+            const A = a.icon;
+            return (
+              <button
+                key={a.key}
+                onClick={() => onPick(a.key)}
+                className="group rounded-xl border-2 bg-card p-5 text-left transition-all hover:border-primary hover:shadow-lg hover:-translate-y-0.5"
+              >
+                <div className={cn("h-12 w-12 rounded-lg flex items-center justify-center mb-3", a.color)}>
+                  <A className="h-6 w-6" />
+                </div>
+                <div className="font-bold text-foreground">{a.label}</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  {a.kpis.length} KPI{a.kpis.length > 1 ? "s" : ""} · {projectsList.length} proyectos
+                </div>
+                <div className="mt-3 text-xs text-primary font-semibold opacity-0 group-hover:opacity-100 transition flex items-center gap-1">
+                  Entrar <ChevronRight className="h-3 w-3" />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Historial */}
+        <div className="rounded-lg border bg-muted/30 p-4">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
+            <History className="h-3.5 w-3.5" /> Últimas fechas de corte
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {cutoffHistory.map((d, i) => (
+              <Badge key={i} variant={i === 0 ? "default" : "secondary"} className="text-xs">
+                {format(d, "dd/MM/yyyy")} {i === 0 && "· vigente reporte"}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
    MAIN
 ============================================================ */
 
 export default function GerenciaLlenado() {
   const { toast } = useToast();
   const [mode, setMode] = useState<FillMode>("tabs");
-  const [data, setData] = useState<FormState>(initialState);
+  const [data, setData] = useState<FormState>(buildInitialState());
+
+  // Fechas de corte
+  const [cutoffHistory, setCutoffHistory] = useState<Date[]>(PREVIOUS_CUTOFFS);
+  const [cutoffDate, setCutoffDate] = useState<Date>(getNextCutoff(PREVIOUS_CUTOFFS));
+
+  // Área activa (lock). Null = pantalla de selección.
+  const [lockedAreaKey, setLockedAreaKey] = useState<string | null>(null);
+
+  const lockedArea = useMemo(
+    () => areas.find((a) => a.key === lockedAreaKey) || null,
+    [lockedAreaKey]
+  );
 
   const updateCell = (project: string, kpiKey: string, patch: Partial<{ value: string; status: Status; comment: string }>) => {
     setData((prev) => ({
@@ -224,60 +346,105 @@ export default function GerenciaLlenado() {
     }));
   };
 
+  // Avance solo del área activa
   const completion = useMemo(() => {
-    const totalsByArea: Record<string, { filled: number; total: number }> = {};
-    areas.forEach((a) => {
-      let filled = 0;
-      const total = projectsList.length * a.kpis.length;
-      projectsList.forEach((p) =>
-        a.kpis.forEach((k) => {
-          if (data[p]?.[k.key]?.value?.trim()) filled++;
-        })
-      );
-      totalsByArea[a.key] = { filled, total };
-    });
-    const totalFilled = Object.values(totalsByArea).reduce((s, x) => s + x.filled, 0);
-    const totalAll = Object.values(totalsByArea).reduce((s, x) => s + x.total, 0);
-    return { byArea: totalsByArea, pct: Math.round((totalFilled / totalAll) * 100) };
-  }, [data]);
+    if (!lockedArea) return { filled: 0, total: 0, pct: 0 };
+    let filled = 0;
+    const total = projectsList.length * lockedArea.kpis.length;
+    projectsList.forEach((p) =>
+      lockedArea.kpis.forEach((k) => {
+        if (data[p]?.[k.key]?.value?.trim()) filled++;
+      })
+    );
+    return { filled, total, pct: Math.round((filled / total) * 100) };
+  }, [data, lockedArea]);
 
   const handleSave = () => {
+    if (!lockedArea) return;
+    // Registra la fecha de corte en el historial y avanza la próxima 14 días
+    setCutoffHistory((h) => {
+      const updated = [cutoffDate, ...h].slice(0, 6);
+      setCutoffDate(addDays(cutoffDate, 14));
+      return updated;
+    });
     toast({
-      title: "Datos guardados",
-      description: `Avance global: ${completion.pct}%. Información sincronizada con el reporte de gerencia.`,
+      title: `Datos de ${lockedArea.label} guardados`,
+      description: `Corte ${format(cutoffDate, "dd/MM/yyyy")} registrado · Avance: ${completion.pct}% · Próximo corte: ${format(addDays(cutoffDate, 14), "dd/MM/yyyy")}`,
     });
   };
+
+  // Pantalla de selección
+  if (!lockedArea) {
+    return <AreaGate cutoffDate={cutoffDate} onPick={setLockedAreaKey} cutoffHistory={cutoffHistory} />;
+  }
 
   return (
     <div className="min-h-screen bg-background p-4 lg:p-6 space-y-5">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
         <div>
-          <Link
-            to="/gerencia/reporte"
+          <button
+            onClick={() => setLockedAreaKey(null)}
             className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition"
           >
-            <ArrowLeft className="h-3 w-3" /> Volver al reporte consolidado
-          </Link>
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mt-2">
-            Gerencia · Llenado de Datos por Área
-          </p>
-          <h1 className="text-2xl lg:text-3xl font-bold text-foreground mt-1">
-            Captura de KPIs · Seguridad · Operaciones · Costos · GH
+            <ArrowLeft className="h-3 w-3" /> Cambiar área
+          </button>
+          <div className={cn("inline-flex items-center gap-2 px-3 py-1 rounded-lg mt-2 border", lockedArea.color)}>
+            <lockedArea.icon className="h-4 w-4" />
+            <span className="font-bold text-sm">{lockedArea.label}</span>
+            <Lock className="h-3 w-3 opacity-60" />
+          </div>
+          <h1 className="text-2xl lg:text-3xl font-bold text-foreground mt-2">
+            Captura de KPIs · {lockedArea.label}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Selecciona el método de llenado que mejor se adapte a tu flujo de trabajo.
+            Solo ves los KPIs de tu área. Las demás áreas son privadas y se llenan por sus respectivos responsables.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="text-right">
-            <div className="text-xs text-muted-foreground">Avance global</div>
-            <div className="text-2xl font-bold text-primary">{completion.pct}%</div>
+        <div className="flex flex-col items-end gap-2">
+          {/* Selector de fecha de corte */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2 h-auto py-2">
+                <CalendarIcon className="h-4 w-4 text-primary" />
+                <div className="text-left">
+                  <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Fecha de corte</div>
+                  <div className="font-bold text-sm">{format(cutoffDate, "dd/MM/yyyy")}</div>
+                </div>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <div className="p-3 border-b text-xs text-muted-foreground">
+                Sugerida automáticamente (+14 días desde {format(cutoffHistory[0], "dd/MM/yyyy")}).
+                Puedes ajustarla si es necesario.
+              </div>
+              <Calendar
+                mode="single"
+                selected={cutoffDate}
+                onSelect={(d) => d && setCutoffDate(d)}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="text-xs text-muted-foreground">Avance del área</div>
+              <div className="text-2xl font-bold text-primary">{completion.pct}%</div>
+            </div>
+            <Button onClick={handleSave} size="lg" className="gap-2">
+              <Save className="h-4 w-4" /> Guardar corte
+            </Button>
           </div>
-          <Button onClick={handleSave} size="lg" className="gap-2">
-            <Save className="h-4 w-4" /> Guardar
-          </Button>
         </div>
+      </div>
+
+      {/* Cinta de progreso del área */}
+      <div className="rounded-lg border bg-card p-3 flex items-center gap-3">
+        <Progress value={completion.pct} className="h-2 flex-1" />
+        <span className="text-xs text-muted-foreground whitespace-nowrap">
+          {completion.filled} / {completion.total} celdas llenas
+        </span>
       </div>
 
       {/* Mode selector */}
@@ -293,228 +460,193 @@ export default function GerenciaLlenado() {
             active={mode === "tabs"}
             onClick={() => setMode("tabs")}
             icon={LayoutPanelLeft}
-            label="Opción 1 · Tabs por área"
-            desc="Una pestaña por área. Formulario limpio enfocado para cada responsable."
+            label="Opción 1 · Tabla simple"
+            desc="Tabla limpia: filas = proyectos, columnas = KPIs del área."
           />
           <ModeBtn
             active={mode === "wizard"}
             onClick={() => setMode("wizard")}
             icon={ListChecks}
-            label="Opción 2 · Wizard 4 pasos"
-            desc="Asistente paso a paso con barra de progreso. Ideal para llenado mensual."
+            label="Opción 2 · Wizard por proyecto"
+            desc="Asistente paso a paso, un proyecto a la vez con barra de progreso."
           />
           <ModeBtn
             active={mode === "modal"}
             onClick={() => setMode("modal")}
             icon={PencilLine}
             label="Opción 3 · Edición por celda"
-            desc="Matriz tipo grilla; click en celda abre modal de edición. Rápido y puntual."
+            desc="Grilla compacta; click en celda abre panel lateral con detalle."
           />
           <ModeBtn
             active={mode === "split"}
             onClick={() => setMode("split")}
             icon={SplitSquareHorizontal}
-            label="Opción 4 · Split panel"
-            desc="Lista de áreas a la izquierda con pendientes; formulario por proyecto a la derecha."
+            label="Opción 4 · Acordeón por proyecto"
+            desc="Cada proyecto se expande para mostrar sus KPIs en tarjetas."
           />
         </div>
       </div>
 
-      {/* Render selected mode */}
-      {mode === "tabs" && <TabsMode data={data} updateCell={updateCell} completion={completion} />}
-      {mode === "wizard" && <WizardMode data={data} updateCell={updateCell} completion={completion} onSave={handleSave} />}
-      {mode === "modal" && <ModalMode data={data} updateCell={updateCell} />}
-      {mode === "split" && <SplitMode data={data} updateCell={updateCell} completion={completion} />}
+      {/* Render selected mode (siempre solo el área bloqueada) */}
+      {mode === "tabs" && <SingleAreaTable area={lockedArea} data={data} updateCell={updateCell} />}
+      {mode === "wizard" && <SingleAreaWizard area={lockedArea} data={data} updateCell={updateCell} onSave={handleSave} />}
+      {mode === "modal" && <SingleAreaGrid area={lockedArea} data={data} updateCell={updateCell} />}
+      {mode === "split" && <SingleAreaAccordion area={lockedArea} data={data} updateCell={updateCell} />}
+
+      {/* Historial de cortes */}
+      <div className="rounded-lg border bg-muted/30 p-4">
+        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-foreground mb-2">
+          <History className="h-3.5 w-3.5" /> Historial de cortes registrados
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {cutoffHistory.map((d, i) => (
+            <Badge key={i} variant={i === 0 ? "default" : "secondary"} className="text-xs">
+              {format(d, "dd/MM/yyyy")}
+            </Badge>
+          ))}
+          <Badge variant="outline" className="text-xs gap-1 border-dashed">
+            <CalendarIcon className="h-3 w-3" /> Próximo: {format(addDays(cutoffDate, 14), "dd/MM/yyyy")}
+          </Badge>
+        </div>
+      </div>
     </div>
   );
 }
 
 /* ============================================================
-   OPCIÓN 1 · TABS POR ÁREA
+   OPCIÓN 1 · TABLA SIMPLE (un área)
 ============================================================ */
 
-function TabsMode({
+function SingleAreaTable({
+  area,
   data,
   updateCell,
-  completion,
 }: {
+  area: AreaDef;
   data: FormState;
   updateCell: (p: string, k: string, patch: any) => void;
-  completion: { byArea: Record<string, { filled: number; total: number }>; pct: number };
 }) {
   return (
-    <Tabs defaultValue={areas[0].key} className="space-y-4">
-      <TabsList className="h-auto p-1 bg-muted/50 flex-wrap">
-        {areas.map((a) => {
-          const A = a.icon;
-          const c = completion.byArea[a.key];
-          return (
-            <TabsTrigger key={a.key} value={a.key} className="gap-2 data-[state=active]:bg-background">
-              <A className="h-4 w-4" />
-              <span>{a.label}</span>
-              <Badge variant="secondary" className="ml-1 text-[10px] h-5">
-                {c.filled}/{c.total}
-              </Badge>
-            </TabsTrigger>
-          );
-        })}
-      </TabsList>
+    <div className="rounded-xl border bg-card overflow-hidden">
+      <div className={cn("flex items-center gap-3 px-5 py-3 border-b", area.color)}>
+        <area.icon className="h-5 w-5" />
+        <div>
+          <h3 className="font-bold">{area.label}</h3>
+          <p className="text-xs opacity-80">
+            {area.kpis.length} KPI{area.kpis.length > 1 ? "s" : ""} · {projectsList.length} proyectos
+          </p>
+        </div>
+      </div>
 
-      {areas.map((a) => (
-        <TabsContent key={a.key} value={a.key} className="rounded-xl border bg-card overflow-hidden">
-          <div className={cn("flex items-center gap-3 px-5 py-3 border-b", a.color)}>
-            <a.icon className="h-5 w-5" />
-            <div>
-              <h3 className="font-bold">{a.label}</h3>
-              <p className="text-xs opacity-80">
-                {a.kpis.length} KPI{a.kpis.length > 1 ? "s" : ""} · {projectsList.length} proyectos
-              </p>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
-                <tr>
-                  <th className="text-left px-4 py-2 font-semibold">Proyecto</th>
-                  {a.kpis.map((k) => (
-                    <th key={k.key} className="text-left px-4 py-2 font-semibold">
-                      {k.label} <span className="text-muted-foreground/60">({k.unit})</span>
-                    </th>
-                  ))}
-                  <th className="text-left px-4 py-2 font-semibold">Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {projectsList.map((p, i) => (
-                  <tr key={p} className={cn("border-t", i % 2 === 0 ? "bg-background" : "bg-muted/20")}>
-                    <td className="px-4 py-2 font-medium">{p}</td>
-                    {a.kpis.map((k) => (
-                      <td key={k.key} className="px-4 py-2">
-                        <Input
-                          type="number"
-                          value={data[p][k.key].value}
-                          onChange={(e) => updateCell(p, k.key, { value: e.target.value })}
-                          className="h-8 w-28"
-                          placeholder="0"
-                        />
-                      </td>
-                    ))}
-                    <td className="px-4 py-2">
-                      <StatusPill
-                        status={data[p][a.kpis[0].key].status}
-                        onChange={(s) => a.kpis.forEach((k) => updateCell(p, k.key, { status: s }))}
-                      />
-                    </td>
-                  </tr>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+            <tr>
+              <th className="text-left px-4 py-2 font-semibold">Proyecto</th>
+              {area.kpis.map((k) => (
+                <th key={k.key} className="text-left px-4 py-2 font-semibold">
+                  {k.label} <span className="text-muted-foreground/60">({k.unit})</span>
+                </th>
+              ))}
+              <th className="text-left px-4 py-2 font-semibold">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {projectsList.map((p, i) => (
+              <tr key={p} className={cn("border-t", i % 2 === 0 ? "bg-background" : "bg-muted/20")}>
+                <td className="px-4 py-2 font-medium">{p}</td>
+                {area.kpis.map((k) => (
+                  <td key={k.key} className="px-4 py-2">
+                    <Input
+                      type="number"
+                      value={data[p][k.key].value}
+                      onChange={(e) => updateCell(p, k.key, { value: e.target.value })}
+                      className="h-8 w-28"
+                      placeholder="0"
+                    />
+                  </td>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </TabsContent>
-      ))}
-    </Tabs>
+                <td className="px-4 py-2">
+                  <StatusPill
+                    status={data[p][area.kpis[0].key].status}
+                    onChange={(s) => area.kpis.forEach((k) => updateCell(p, k.key, { status: s }))}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
 
 /* ============================================================
-   OPCIÓN 2 · WIZARD 4 PASOS
+   OPCIÓN 2 · WIZARD POR PROYECTO
 ============================================================ */
 
-function WizardMode({
+function SingleAreaWizard({
+  area,
   data,
   updateCell,
-  completion,
   onSave,
 }: {
+  area: AreaDef;
   data: FormState;
   updateCell: (p: string, k: string, patch: any) => void;
-  completion: { byArea: Record<string, { filled: number; total: number }>; pct: number };
   onSave: () => void;
 }) {
   const [step, setStep] = useState(0);
-  const isLast = step === areas.length;
-  const area = areas[step];
+  const isLast = step === projectsList.length;
+  const project = projectsList[step];
 
   return (
     <div className="rounded-xl border bg-card overflow-hidden">
-      {/* Progress bar with steps */}
       <div className="bg-muted/30 px-5 py-4 border-b">
         <div className="flex items-center justify-between mb-3">
           <div className="text-sm font-semibold">
-            Paso {Math.min(step + 1, areas.length + 1)} de {areas.length + 1}
+            Proyecto {Math.min(step + 1, projectsList.length)} de {projectsList.length}
+            {!isLast && project && <span className="text-muted-foreground"> · {project}</span>}
           </div>
-          <div className="text-xs text-muted-foreground">Avance global: {completion.pct}%</div>
+          <div className="text-xs text-muted-foreground">{area.label}</div>
         </div>
-        <Progress value={((step + 1) / (areas.length + 1)) * 100} className="h-2" />
-        <div className="flex items-center justify-between mt-3">
-          {areas.map((a, idx) => {
-            const A = a.icon;
-            const done = idx < step;
-            const active = idx === step;
-            return (
-              <div key={a.key} className="flex flex-col items-center flex-1">
-                <div
-                  className={cn(
-                    "h-8 w-8 rounded-full flex items-center justify-center transition",
-                    done && "bg-emerald-500 text-white",
-                    active && "bg-primary text-primary-foreground ring-4 ring-primary/20",
-                    !done && !active && "bg-muted text-muted-foreground"
-                  )}
-                >
-                  {done ? <Check className="h-4 w-4" /> : <A className="h-4 w-4" />}
-                </div>
-                <span className={cn("text-[10px] mt-1 text-center", active && "font-semibold text-primary")}>
-                  {a.label}
-                </span>
-              </div>
-            );
-          })}
-          <div className="flex flex-col items-center flex-1">
-            <div
-              className={cn(
-                "h-8 w-8 rounded-full flex items-center justify-center",
-                isLast ? "bg-primary text-primary-foreground ring-4 ring-primary/20" : "bg-muted text-muted-foreground"
-              )}
-            >
-              <Check className="h-4 w-4" />
-            </div>
-            <span className={cn("text-[10px] mt-1", isLast && "font-semibold text-primary")}>Resumen</span>
-          </div>
-        </div>
+        <Progress value={((step + 1) / (projectsList.length + 1)) * 100} className="h-2" />
       </div>
 
-      {/* Content */}
       <div className="p-5">
-        {!isLast && area && (
+        {!isLast && project && (
           <>
             <div className={cn("flex items-center gap-3 p-3 rounded-lg mb-4", area.color)}>
               <area.icon className="h-6 w-6" />
               <div>
-                <h3 className="font-bold text-lg">{area.label}</h3>
-                <p className="text-xs opacity-80">Llena los {area.kpis.length} KPIs para los {projectsList.length} proyectos</p>
+                <h3 className="font-bold text-lg">{project}</h3>
+                <p className="text-xs opacity-80">Llena los {area.kpis.length} KPIs de {area.label}</p>
               </div>
             </div>
-            <div className="space-y-2">
-              {projectsList.map((p) => (
-                <div key={p} className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-3 p-3 rounded-lg border bg-muted/20">
-                  <div className="font-semibold text-sm flex items-center">{p}</div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {area.kpis.map((k) => (
-                      <div key={k.key}>
-                        <Label className="text-[11px] text-muted-foreground">
-                          {k.label} ({k.unit})
-                        </Label>
-                        <Input
-                          type="number"
-                          value={data[p][k.key].value}
-                          onChange={(e) => updateCell(p, k.key, { value: e.target.value })}
-                          className="h-8"
-                          placeholder="0"
-                        />
-                      </div>
-                    ))}
+            <div className="space-y-3">
+              {area.kpis.map((k) => (
+                <div key={k.key} className="rounded-lg border bg-muted/20 p-4 space-y-3">
+                  <Label className="text-sm font-semibold">
+                    {k.label} <span className="text-muted-foreground">({k.unit})</span>
+                  </Label>
+                  <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">
+                    <Input
+                      type="number"
+                      value={data[project][k.key].value}
+                      onChange={(e) => updateCell(project, k.key, { value: e.target.value })}
+                      placeholder="0"
+                    />
+                    <StatusPill
+                      status={data[project][k.key].status}
+                      onChange={(s) => updateCell(project, k.key, { status: s })}
+                    />
                   </div>
+                  <Textarea
+                    value={data[project][k.key].comment}
+                    onChange={(e) => updateCell(project, k.key, { comment: e.target.value })}
+                    placeholder="Comentario opcional..."
+                    rows={2}
+                  />
                 </div>
               ))}
             </div>
@@ -522,30 +654,18 @@ function WizardMode({
         )}
 
         {isLast && (
-          <div className="space-y-3">
-            <h3 className="font-bold text-lg">Resumen final</h3>
-            <p className="text-sm text-muted-foreground">Revisa el avance por área antes de guardar.</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-              {areas.map((a) => {
-                const c = completion.byArea[a.key];
-                const pct = Math.round((c.filled / c.total) * 100);
-                return (
-                  <div key={a.key} className={cn("rounded-lg border p-3", a.color)}>
-                    <div className="flex items-center gap-2 mb-2">
-                      <a.icon className="h-4 w-4" />
-                      <span className="text-sm font-semibold">{a.label}</span>
-                    </div>
-                    <div className="text-2xl font-bold">{pct}%</div>
-                    <div className="text-[11px] opacity-80">{c.filled} de {c.total} celdas</div>
-                  </div>
-                );
-              })}
+          <div className="space-y-3 text-center py-6">
+            <div className="h-16 w-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+              <Check className="h-8 w-8" />
             </div>
+            <h3 className="font-bold text-xl">Llenado completado</h3>
+            <p className="text-sm text-muted-foreground">
+              Has revisado los {projectsList.length} proyectos para {area.label}. Guarda para registrar el corte.
+            </p>
           </div>
         )}
       </div>
 
-      {/* Footer */}
       <div className="flex items-center justify-between border-t bg-muted/30 px-5 py-3">
         <Button variant="outline" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0} className="gap-2">
           <ChevronLeft className="h-4 w-4" /> Anterior
@@ -556,7 +676,7 @@ function WizardMode({
           </Button>
         ) : (
           <Button onClick={onSave} className="gap-2">
-            <Save className="h-4 w-4" /> Guardar todo
+            <Save className="h-4 w-4" /> Guardar corte
           </Button>
         )}
       </div>
@@ -565,49 +685,39 @@ function WizardMode({
 }
 
 /* ============================================================
-   OPCIÓN 3 · MATRIZ + MODAL DE EDICIÓN
+   OPCIÓN 3 · GRILLA + MODAL
 ============================================================ */
 
-function ModalMode({
+function SingleAreaGrid({
+  area,
   data,
   updateCell,
 }: {
+  area: AreaDef;
   data: FormState;
   updateCell: (p: string, k: string, patch: any) => void;
 }) {
-  const [editing, setEditing] = useState<{ project: string; areaKey: string; kpiKey: string } | null>(null);
-
-  const allKpis = areas.flatMap((a) => a.kpis.map((k) => ({ ...k, areaKey: a.key, areaLabel: a.label })));
+  const [editing, setEditing] = useState<{ project: string; kpiKey: string } | null>(null);
 
   return (
     <div className="rounded-xl border bg-card overflow-hidden">
-      <div className="px-5 py-3 border-b flex items-center justify-between">
+      <div className={cn("px-5 py-3 border-b flex items-center gap-3", area.color)}>
+        <area.icon className="h-5 w-5" />
         <div>
-          <h3 className="font-bold">Matriz editable · Click en cualquier celda</h3>
-          <p className="text-xs text-muted-foreground">Edita valores rápidamente sin perder vista global.</p>
+          <h3 className="font-bold">{area.label} · Grilla editable</h3>
+          <p className="text-xs opacity-80">Click en cualquier celda para editar valor, estado y comentario.</p>
         </div>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
-          <thead className="sticky top-0 bg-muted/60">
+          <thead className="bg-muted/60">
             <tr>
               <th className="sticky left-0 bg-muted/80 backdrop-blur text-left px-3 py-2 font-bold uppercase tracking-wider">
                 Proyecto
               </th>
-              {areas.map((a) => (
-                <th key={a.key} colSpan={a.kpis.length} className={cn("text-center px-3 py-2 font-bold uppercase tracking-wider border-l", a.color)}>
-                  <div className="flex items-center justify-center gap-1.5">
-                    <a.icon className="h-3.5 w-3.5" />
-                    {a.label}
-                  </div>
-                </th>
-              ))}
-            </tr>
-            <tr className="border-t">
-              <th className="sticky left-0 bg-muted/40"></th>
-              {allKpis.map((k) => (
-                <th key={`${k.areaKey}-${k.key}`} className="text-center px-3 py-2 font-medium normal-case text-muted-foreground border-l">
+              {area.kpis.map((k) => (
+                <th key={k.key} className="text-center px-3 py-2 font-medium text-muted-foreground border-l">
                   {k.label}
                   <div className="text-[10px] opacity-60">({k.unit})</div>
                 </th>
@@ -618,7 +728,7 @@ function ModalMode({
             {projectsList.map((p, i) => (
               <tr key={p} className={cn("border-t", i % 2 === 0 ? "bg-background" : "bg-muted/20")}>
                 <td className="sticky left-0 bg-inherit px-3 py-2 font-semibold whitespace-nowrap">{p}</td>
-                {allKpis.map((k) => {
+                {area.kpis.map((k) => {
                   const cell = data[p][k.key];
                   const dotMap: Record<Status, string> = {
                     good: "bg-emerald-500",
@@ -630,7 +740,7 @@ function ModalMode({
                     <td key={k.key} className="px-1 py-1 border-l">
                       <button
                         type="button"
-                        onClick={() => setEditing({ project: p, areaKey: k.areaKey, kpiKey: k.key })}
+                        onClick={() => setEditing({ project: p, kpiKey: k.key })}
                         className="w-full px-2 py-1.5 rounded hover:bg-primary/10 hover:ring-1 hover:ring-primary transition flex items-center justify-between gap-2 group"
                       >
                         <span className={cn("font-mono", !cell.value && "text-muted-foreground/50 italic")}>
@@ -650,11 +760,9 @@ function ModalMode({
         </table>
       </div>
 
-      {/* Edit sheet */}
       <Sheet open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <SheetContent className="sm:max-w-md">
           {editing && (() => {
-            const area = areas.find((a) => a.key === editing.areaKey)!;
             const kpi = area.kpis.find((k) => k.key === editing.kpiKey)!;
             const cell = data[editing.project][editing.kpiKey];
             return (
@@ -713,113 +821,68 @@ function ModalMode({
 }
 
 /* ============================================================
-   OPCIÓN 4 · SPLIT PANEL
+   OPCIÓN 4 · ACORDEÓN POR PROYECTO
 ============================================================ */
 
-function SplitMode({
+function SingleAreaAccordion({
+  area,
   data,
   updateCell,
-  completion,
 }: {
+  area: AreaDef;
   data: FormState;
   updateCell: (p: string, k: string, patch: any) => void;
-  completion: { byArea: Record<string, { filled: number; total: number }>; pct: number };
 }) {
-  const [areaKey, setAreaKey] = useState(areas[0].key);
-  const area = areas.find((a) => a.key === areaKey)!;
-
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4">
-      {/* Lista de áreas */}
-      <div className="rounded-xl border bg-card overflow-hidden h-fit">
-        <div className="px-4 py-3 border-b bg-muted/40">
-          <h3 className="text-sm font-bold">Áreas</h3>
-          <p className="text-[11px] text-muted-foreground">Selecciona un área para llenar</p>
+    <div className="rounded-xl border bg-card overflow-hidden">
+      <div className={cn("px-5 py-3 border-b flex items-center gap-3", area.color)}>
+        <area.icon className="h-5 w-5" />
+        <div>
+          <h3 className="font-bold">{area.label} · Acordeón por proyecto</h3>
+          <p className="text-[11px] opacity-80">Expande cada proyecto para llenar sus KPIs</p>
         </div>
-        <div className="p-2 space-y-1">
-          {areas.map((a) => {
-            const A = a.icon;
-            const c = completion.byArea[a.key];
-            const pending = c.total - c.filled;
-            const active = areaKey === a.key;
-            return (
-              <button
-                key={a.key}
-                type="button"
-                onClick={() => setAreaKey(a.key)}
-                className={cn(
-                  "w-full text-left px-3 py-2.5 rounded-lg flex items-center gap-3 transition",
-                  active ? "bg-primary text-primary-foreground" : "hover:bg-muted"
-                )}
-              >
-                <A className="h-4 w-4 shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold truncate">{a.label}</div>
-                  <div className={cn("text-[11px]", active ? "opacity-90" : "text-muted-foreground")}>
-                    {c.filled} / {c.total} llenos
-                  </div>
-                </div>
-                {pending > 0 && (
-                  <Badge variant={active ? "secondary" : "destructive"} className="text-[10px]">
-                    {pending}
+      </div>
+
+      <Accordion type="multiple" className="px-2">
+        {projectsList.map((p) => {
+          const filledCount = area.kpis.filter((k) => data[p][k.key].value.trim()).length;
+          const complete = filledCount === area.kpis.length;
+          return (
+            <AccordionItem key={p} value={p} className="border-b last:border-0">
+              <AccordionTrigger className="px-3 hover:no-underline hover:bg-muted/40 rounded">
+                <div className="flex items-center gap-3 flex-1">
+                  <CircleDot className={cn("h-3.5 w-3.5", complete ? "text-emerald-500" : "text-muted-foreground/40")} />
+                  <span className="font-semibold text-sm">{p}</span>
+                  <Badge variant="outline" className="ml-auto mr-2 text-[10px]">
+                    {filledCount}/{area.kpis.length}
                   </Badge>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Formulario por proyecto */}
-      <div className="rounded-xl border bg-card overflow-hidden">
-        <div className={cn("px-5 py-3 border-b flex items-center gap-3", area.color)}>
-          <area.icon className="h-5 w-5" />
-          <div>
-            <h3 className="font-bold">{area.label}</h3>
-            <p className="text-[11px] opacity-80">Expande cada proyecto para llenar sus KPIs</p>
-          </div>
-        </div>
-
-        <Accordion type="multiple" className="px-2">
-          {projectsList.map((p) => {
-            const filledCount = area.kpis.filter((k) => data[p][k.key].value.trim()).length;
-            return (
-              <AccordionItem key={p} value={p} className="border-b last:border-0">
-                <AccordionTrigger className="px-3 hover:no-underline hover:bg-muted/40 rounded">
-                  <div className="flex items-center gap-3 flex-1">
-                    <CircleDot className={cn("h-3.5 w-3.5", filledCount === area.kpis.length ? "text-emerald-500" : "text-muted-foreground/40")} />
-                    <span className="font-semibold text-sm">{p}</span>
-                    <Badge variant="outline" className="ml-auto mr-2 text-[10px]">
-                      {filledCount}/{area.kpis.length}
-                    </Badge>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="px-3 pb-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {area.kpis.map((k) => (
-                      <div key={k.key} className="rounded-lg border bg-muted/20 p-3 space-y-2">
-                        <Label className="text-xs font-semibold">
-                          {k.label} <span className="text-muted-foreground">({k.unit})</span>
-                        </Label>
-                        <Input
-                          type="number"
-                          value={data[p][k.key].value}
-                          onChange={(e) => updateCell(p, k.key, { value: e.target.value })}
-                          placeholder="0"
-                        />
-                        <StatusPill
-                          status={data[p][k.key].status}
-                          onChange={(s) => updateCell(p, k.key, { status: s })}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            );
-          })}
-        </Accordion>
-      </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-3 pb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {area.kpis.map((k) => (
+                    <div key={k.key} className="rounded-lg border bg-muted/20 p-3 space-y-2">
+                      <Label className="text-xs font-semibold">
+                        {k.label} <span className="text-muted-foreground">({k.unit})</span>
+                      </Label>
+                      <Input
+                        type="number"
+                        value={data[p][k.key].value}
+                        onChange={(e) => updateCell(p, k.key, { value: e.target.value })}
+                        placeholder="0"
+                      />
+                      <StatusPill
+                        status={data[p][k.key].status}
+                        onChange={(s) => updateCell(p, k.key, { status: s })}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          );
+        })}
+      </Accordion>
     </div>
   );
 }
