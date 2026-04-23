@@ -27,6 +27,7 @@ import {
   PencilLine,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import LlenadoDialog from "@/components/gerencia/LlenadoDialog";
 
 type ViewMode = "matrix" | "cards" | "heatmap" | "kanban";
 
@@ -440,11 +441,13 @@ export default function GerenciaReporte() {
               className="pl-9 w-64"
             />
           </div>
-          <Button variant="outline" size="sm" className="gap-2" asChild>
-            <Link to="/gerencia/llenado">
-              <PencilLine className="h-4 w-4" /> Llenar datos
-            </Link>
-          </Button>
+          <LlenadoDialog
+            trigger={
+              <Button variant="outline" size="sm" className="gap-2">
+                <PencilLine className="h-4 w-4" /> Llenar datos
+              </Button>
+            }
+          />
           <Button variant="outline" size="sm" className="gap-2">
             <Download className="h-4 w-4" /> Exportar
           </Button>
