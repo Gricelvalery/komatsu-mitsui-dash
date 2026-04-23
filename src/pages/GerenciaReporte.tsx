@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,7 @@ import {
   Table as TableIcon,
   Flame,
   Columns3,
+  PencilLine,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -438,6 +440,11 @@ export default function GerenciaReporte() {
               className="pl-9 w-64"
             />
           </div>
+          <Button variant="outline" size="sm" className="gap-2" asChild>
+            <Link to="/gerencia/llenado">
+              <PencilLine className="h-4 w-4" /> Llenar datos
+            </Link>
+          </Button>
           <Button variant="outline" size="sm" className="gap-2">
             <Download className="h-4 w-4" /> Exportar
           </Button>
