@@ -161,35 +161,44 @@ const getNextCutoff = (history: Date[]) => addDays(history[0], 14);
    SHARED UI
 ============================================================ */
 
+const STATUS_OPTS: { v: Status; label: string; cls: string }[] = [
+  { v: "none", label: "Sin estado", cls: "bg-muted-foreground/40" },
+  { v: "good", label: "Cumple", cls: "bg-emerald-500" },
+  { v: "warn", label: "Alerta", cls: "bg-amber-400" },
+  { v: "bad", label: "Crítico", cls: "bg-red-500" },
+];
+
 const StatusPill = ({
   status,
   onChange,
+  className,
 }: {
   status: Status;
   onChange: (s: Status) => void;
+  className?: string;
 }) => {
-  const opts: { v: Status; label: string; cls: string }[] = [
-    { v: "good", label: "Cumple", cls: "bg-emerald-500" },
-    { v: "warn", label: "Alerta", cls: "bg-amber-400" },
-    { v: "bad", label: "Crítico", cls: "bg-red-500" },
-  ];
+  const current = STATUS_OPTS.find((o) => o.v === status) ?? STATUS_OPTS[0];
   return (
-    <div className="inline-flex rounded-md border bg-muted/40 p-0.5">
-      {opts.map((o) => (
-        <button
-          key={o.v}
-          type="button"
-          onClick={() => onChange(o.v)}
-          className={cn(
-            "flex items-center gap-1.5 px-2 py-1 text-xs rounded transition",
-            status === o.v ? "bg-background shadow-sm font-semibold" : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          <span className={cn("h-2 w-2 rounded-full", o.cls)} />
-          {o.label}
-        </button>
-      ))}
-    </div>
+    <Select value={status} onValueChange={(v) => onChange(v as Status)}>
+      <SelectTrigger className={cn("h-8 w-[140px] text-xs", className)}>
+        <SelectValue>
+          <span className="flex items-center gap-2">
+            <span className={cn("h-2 w-2 rounded-full", current.cls)} />
+            <span>{current.label}</span>
+          </span>
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        {STATUS_OPTS.filter((o) => o.v !== "none").map((o) => (
+          <SelectItem key={o.v} value={o.v}>
+            <span className="flex items-center gap-2">
+              <span className={cn("h-2 w-2 rounded-full", o.cls)} />
+              {o.label}
+            </span>
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 };
 
