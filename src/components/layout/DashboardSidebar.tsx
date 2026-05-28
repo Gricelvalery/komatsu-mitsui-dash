@@ -51,6 +51,16 @@ const navigationItems: NavItem[] = [
     href: "/",
   },
   {
+    title: "SOLPEDs",
+    icon: ClipboardList,
+    children: [
+      { title: "Registro", icon: FileText, href: "/solpeds" },
+      { title: "Aprobaciones", icon: Shield, href: "/solpeds/aprobaciones" },
+      { title: "Presupuestos", icon: BarChart3, href: "/presupuestos" },
+      { title: "Dashboard Ejecutivo", icon: TrendingUp, href: "/solpeds/dashboard" },
+    ],
+  },
+  {
     title: "KPI",
     icon: TrendingUp,
     children: [

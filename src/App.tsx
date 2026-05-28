@@ -25,9 +25,25 @@ import SeguimientoKpi from "./pages/SeguimientoKpi";
 import MejoraAgenda from "./pages/MejoraAgenda";
 import HerramientasPoder from "./pages/HerramientasPoder";
 import ControlCompras from "./pages/ControlCompras";
+import AuthPage from "./pages/Auth";
+import SolpedsGrid from "./pages/SolpedsGrid";
+import SolpedAprobaciones from "./pages/SolpedAprobaciones";
+import Presupuestos from "./pages/Presupuestos";
+import SolpedDashboard from "./pages/SolpedDashboard";
+import { AuthProvider } from "@/hooks/useAuth";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { cn } from "@/lib/utils";
 
 const queryClient = new QueryClient();
+
+const AppLayout = ({ sidebarCollapsed, setSidebarCollapsed, children }: any) => (
+  <div className="flex min-h-screen w-full">
+    <DashboardSidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
+    <div className={cn("flex-1 transition-smooth", sidebarCollapsed ? "ml-16" : "ml-64")}>
+      {children}
+    </div>
+  </div>
+);
 
 const App = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -38,180 +54,40 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <div className="flex min-h-screen w-full">
-            <DashboardSidebar
-              collapsed={sidebarCollapsed}
-              onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-            />
-            <div
-              className={cn(
-                "flex-1 transition-smooth",
-                sidebarCollapsed ? "ml-16" : "ml-64"
-              )}
-            >
-              <Routes>
-                <Route
-                  path="/"
-                  element={
-                    <>
-                      <DashboardHeader title="Dashboard" />
-                      <Dashboard />
-                    </>
-                  }
-                />
-                <Route
-                  path="/kpi/antapaccay"
-                  element={
-                    <>
-                      <DashboardHeader title="KPIs Antapaccay" />
-                      <KpisAntapaccay />
-                    </>
-                  }
-                />
-                <Route
-                  path="/plm"
-                  element={
-                    <>
-                      <DashboardHeader title="Gestión PLM" />
-                      <Plm />
-                    </>
-                  }
-                />
-                <Route
-                  path="/aceites/*"
-                  element={
-                    <>
-                      <DashboardHeader title="Gestión de Aceites" />
-                      <Aceites />
-                    </>
-                  }
-                />
-                <Route
-                  path="/aceites/quellaveco"
-                  element={<Quellaveco />}
-                />
-                <Route
-                  path="/archivos/*"
-                  element={
-                    <>
-                      <DashboardHeader title="Gestión de Archivos" />
-                      <FileManagement />
-                    </>
-                  }
-                />
-                <Route
-                  path="/reportes/*"
-                  element={
-                    <>
-                      <DashboardHeader title="Reportes" />
-                      <Reports />
-                    </>
-                  }
-                />
-                <Route
-                  path="/usuarios/*"
-                  element={
-                    <>
-                      <DashboardHeader title="Usuarios" />
-                      <Users />
-                    </>
-                  }
-                />
-                <Route
-                  path="/gerencia/reporte"
-                  element={
-                    <>
-                      <DashboardHeader title="Gerencia - Reporte de Proyectos" />
-                      <GerenciaReporte />
-                    </>
-                  }
-                />
-                <Route
-                  path="/gerencia/llenado"
-                  element={
-                    <>
-                      <DashboardHeader title="Gerencia - Llenado de Datos" />
-                      <GerenciaLlenado />
-                    </>
-                  }
-                />
-                <Route
-                  path="/procesos/*"
-                  element={
-                    <>
-                      <DashboardHeader title="Gestión de Procesos" />
-                      <Procesos />
-                    </>
-                  }
-                />
-                <Route
-                  path="/bambas/grafico-mina"
-                  element={
-                    <>
-                      <DashboardHeader title="Bambas - Gráfico de Mina" />
-                      <BambasGraficoMina />
-                    </>
-                  }
-                />
-                <Route
-                  path="/mejora/agenda"
-                  element={
-                    <>
-                      <DashboardHeader title="Mejora - Agenda de Reuniones" />
-                      <MejoraAgenda />
-                    </>
-                  }
-                />
-                <Route
-                  path="/administracion/seguimiento"
-                  element={
-                    <>
-                      <DashboardHeader title="Administración - Seguimiento de Herramientas" />
-                      <SeguimientoHerramientas />
-                    </>
-                  }
-                />
-                <Route
-                  path="/administracion/kpi"
-                  element={
-                    <>
-                      <DashboardHeader title="Administración - KPI Herramientas" />
-                      <SeguimientoKpi />
-                    </>
-                  }
-                />
-                <Route
-                  path="/administracion/herramientas-poder"
-                  element={
-                    <>
-                      <DashboardHeader title="Administración - Herramientas de Poder" />
-                      <HerramientasPoder />
-                    </>
-                  }
-                />
-                <Route
-                  path="/administracion/control-compras"
-                  element={
-                    <>
-                      <DashboardHeader title="Administración - Control de Compras" />
-                      <ControlCompras />
-                    </>
-                  }
-                />
-                <Route
-                  path="/configuracion"
-                  element={
-                    <>
-                      <DashboardHeader title="Configuración del Sistema" />
-                      <Settings />
-                    </>
-                  }
-                />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
-          </div>
+          <AuthProvider>
+            <Routes>
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="*" element={
+                <AppLayout sidebarCollapsed={sidebarCollapsed} setSidebarCollapsed={setSidebarCollapsed}>
+                  <Routes>
+                    <Route path="/" element={<><DashboardHeader title="Dashboard" /><Dashboard /></>} />
+                    <Route path="/kpi/antapaccay" element={<><DashboardHeader title="KPIs Antapaccay" /><KpisAntapaccay /></>} />
+                    <Route path="/plm" element={<><DashboardHeader title="Gestión PLM" /><Plm /></>} />
+                    <Route path="/aceites/*" element={<><DashboardHeader title="Gestión de Aceites" /><Aceites /></>} />
+                    <Route path="/aceites/quellaveco" element={<Quellaveco />} />
+                    <Route path="/archivos/*" element={<><DashboardHeader title="Gestión de Archivos" /><FileManagement /></>} />
+                    <Route path="/reportes/*" element={<><DashboardHeader title="Reportes" /><Reports /></>} />
+                    <Route path="/usuarios/*" element={<><DashboardHeader title="Usuarios" /><Users /></>} />
+                    <Route path="/gerencia/reporte" element={<><DashboardHeader title="Gerencia - Reporte de Proyectos" /><GerenciaReporte /></>} />
+                    <Route path="/gerencia/llenado" element={<><DashboardHeader title="Gerencia - Llenado de Datos" /><GerenciaLlenado /></>} />
+                    <Route path="/procesos/*" element={<><DashboardHeader title="Gestión de Procesos" /><Procesos /></>} />
+                    <Route path="/bambas/grafico-mina" element={<><DashboardHeader title="Bambas - Gráfico de Mina" /><BambasGraficoMina /></>} />
+                    <Route path="/mejora/agenda" element={<><DashboardHeader title="Mejora - Agenda de Reuniones" /><MejoraAgenda /></>} />
+                    <Route path="/administracion/seguimiento" element={<><DashboardHeader title="Administración - Seguimiento de Herramientas" /><SeguimientoHerramientas /></>} />
+                    <Route path="/administracion/kpi" element={<><DashboardHeader title="Administración - KPI Herramientas" /><SeguimientoKpi /></>} />
+                    <Route path="/administracion/herramientas-poder" element={<><DashboardHeader title="Administración - Herramientas de Poder" /><HerramientasPoder /></>} />
+                    <Route path="/administracion/control-compras" element={<><DashboardHeader title="Administración - Control de Compras" /><ControlCompras /></>} />
+                    <Route path="/solpeds" element={<ProtectedRoute><><DashboardHeader title="SOLPEDs - Registro" /><SolpedsGrid /></></ProtectedRoute>} />
+                    <Route path="/solpeds/aprobaciones" element={<ProtectedRoute><><DashboardHeader title="SOLPEDs - Aprobaciones" /><SolpedAprobaciones /></></ProtectedRoute>} />
+                    <Route path="/solpeds/dashboard" element={<ProtectedRoute><><DashboardHeader title="SOLPEDs - Dashboard Ejecutivo" /><SolpedDashboard /></></ProtectedRoute>} />
+                    <Route path="/presupuestos" element={<ProtectedRoute><><DashboardHeader title="Presupuestos por Proyecto" /><Presupuestos /></></ProtectedRoute>} />
+                    <Route path="/configuracion" element={<><DashboardHeader title="Configuración del Sistema" /><Settings /></>} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </AppLayout>
+              } />
+            </Routes>
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
@@ -219,3 +95,4 @@ const App = () => {
 };
 
 export default App;
+
