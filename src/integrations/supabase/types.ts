@@ -14,16 +14,251 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      budget_movements: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          note: string | null
+          project_id: string
+          solped_id: string | null
+          type: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          note?: string | null
+          project_id: string
+          solped_id?: string | null
+          type: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          note?: string | null
+          project_id?: string
+          solped_id?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_movements_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_movements_solped_id_fkey"
+            columns: ["solped_id"]
+            isOneToOne: false
+            referencedRelation: "solpeds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_members: {
+        Row: {
+          id: string
+          project_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          budget_total: number
+          code: string
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          budget_total?: number
+          code: string
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          budget_total?: number
+          code?: string
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      solped_history: {
+        Row: {
+          action: string
+          comment: string | null
+          created_at: string
+          from_status: Database["public"]["Enums"]["solped_status"] | null
+          id: string
+          solped_id: string
+          to_status: Database["public"]["Enums"]["solped_status"] | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          comment?: string | null
+          created_at?: string
+          from_status?: Database["public"]["Enums"]["solped_status"] | null
+          id?: string
+          solped_id: string
+          to_status?: Database["public"]["Enums"]["solped_status"] | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          comment?: string | null
+          created_at?: string
+          from_status?: Database["public"]["Enums"]["solped_status"] | null
+          id?: string
+          solped_id?: string
+          to_status?: Database["public"]["Enums"]["solped_status"] | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solped_history_solped_id_fkey"
+            columns: ["solped_id"]
+            isOneToOne: false
+            referencedRelation: "solpeds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      solpeds: {
+        Row: {
+          amount: number
+          approved_at: string | null
+          code: string
+          cost_center: string | null
+          created_at: string
+          date: string
+          description: string | null
+          id: string
+          observations: string | null
+          priority: Database["public"]["Enums"]["solped_priority"]
+          project_id: string
+          requester_id: string
+          requester_name: string | null
+          status: Database["public"]["Enums"]["solped_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          approved_at?: string | null
+          code: string
+          cost_center?: string | null
+          created_at?: string
+          date?: string
+          description?: string | null
+          id?: string
+          observations?: string | null
+          priority?: Database["public"]["Enums"]["solped_priority"]
+          project_id: string
+          requester_id: string
+          requester_name?: string | null
+          status?: Database["public"]["Enums"]["solped_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          approved_at?: string | null
+          code?: string
+          cost_center?: string | null
+          created_at?: string
+          date?: string
+          description?: string | null
+          id?: string
+          observations?: string | null
+          priority?: Database["public"]["Enums"]["solped_priority"]
+          project_id?: string
+          requester_id?: string
+          requester_name?: string | null
+          status?: Database["public"]["Enums"]["solped_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solpeds_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_project_member: {
+        Args: { _project_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "solicitante" | "aprobador" | "administrador"
+      solped_priority: "baja" | "media" | "alta" | "critica"
+      solped_status:
+        | "pendiente"
+        | "en_revision"
+        | "liberado"
+        | "observado"
+        | "rechazado"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +385,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["solicitante", "aprobador", "administrador"],
+      solped_priority: ["baja", "media", "alta", "critica"],
+      solped_status: [
+        "pendiente",
+        "en_revision",
+        "liberado",
+        "observado",
+        "rechazado",
+      ],
+    },
   },
 } as const
