@@ -25,6 +25,13 @@ import SeguimientoKpi from "./pages/SeguimientoKpi";
 import MejoraAgenda from "./pages/MejoraAgenda";
 import HerramientasPoder from "./pages/HerramientasPoder";
 import ControlCompras from "./pages/ControlCompras";
+import AuthPage from "./pages/Auth";
+import SolpedsGrid from "./pages/SolpedsGrid";
+import SolpedAprobaciones from "./pages/SolpedAprobaciones";
+import Presupuestos from "./pages/Presupuestos";
+import SolpedDashboard from "./pages/SolpedDashboard";
+import { AuthProvider } from "@/hooks/useAuth";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { cn } from "@/lib/utils";
 
 const queryClient = new QueryClient();
