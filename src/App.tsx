@@ -77,7 +77,7 @@ const App = () => {
                     <Route path="/administracion/kpi" element={<><DashboardHeader title="Administración - KPI Herramientas" /><SeguimientoKpi /></>} />
                     <Route path="/administracion/herramientas-poder" element={<><DashboardHeader title="Administración - Herramientas de Poder" /><HerramientasPoder /></>} />
                     <Route path="/administracion/control-compras" element={<><DashboardHeader title="Administración - Control de Compras" /><ControlCompras /></>} />
-                    <Route path="/solpeds" element={<ProtectedRoute><><DashboardHeader title="SOLPEDs - Registro" /><SolpedsGrid /></></ProtectedRoute>} />
+                    <Route path="/solpeds" element={<><DashboardHeader title="SOLPEDs" /><SolpedsGrid /></>} />
                     <Route path="/solpeds/aprobaciones" element={<ProtectedRoute><><DashboardHeader title="SOLPEDs - Aprobaciones" /><SolpedAprobaciones /></></ProtectedRoute>} />
                     <Route path="/solpeds/dashboard" element={<ProtectedRoute><><DashboardHeader title="SOLPEDs - Dashboard Ejecutivo" /><SolpedDashboard /></></ProtectedRoute>} />
                     <Route path="/presupuestos" element={<ProtectedRoute><><DashboardHeader title="Presupuestos por Proyecto" /><Presupuestos /></></ProtectedRoute>} />
