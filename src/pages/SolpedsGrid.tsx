@@ -225,9 +225,14 @@ export default function SolpedsGrid() {
       }
     } catch {}
   }, []);
-  // save
+  // save (con manejo de cuota)
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ registro, revExtras }));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ registro, revExtras }));
+    } catch (err) {
+      console.warn("localStorage lleno, no se persistirá esta sesión", err);
+      try { localStorage.removeItem(STORAGE_KEY); } catch {}
+    }
   }, [registro, revExtras]);
 
   const updateReg = (id: string, patch: Partial<RegistroRow>) => {
