@@ -262,8 +262,12 @@ export default function SolpedsGrid() {
 
     const matched = mapping.filter(Boolean).length;
     if (matched === 0) {
-      toast.error("No se reconocieron cabeceras del SAP. Revisa el archivo.");
-      return;
+      toast.warning(
+        "No se reconocieron las cabeceras. Importando por posición según el orden de columnas del Registro.",
+        { duration: 5000 }
+      );
+      // fallback posicional: usa el orden de REG_COLS
+      REG_COLS.forEach((c, i) => { mapping[i] = c.key; });
     }
 
     const imported: RegistroRow[] = rows.slice(1).map((cells) => {
