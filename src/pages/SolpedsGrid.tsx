@@ -76,8 +76,11 @@ const REG_COLS: RegCol[] = [
   { key: "motivo", label: "MOTIVO", w: 200, type: "text", mn: true },
 ];
 
-/* Mapeo de cabeceras SAP -> campo interno (según la imagen del usuario) */
+/* Mapeo flexible de cabeceras -> campo interno
+   Acepta cabeceras SAP ("Cta.mayor", "Sol.pedido"...) y también las del propio sistema
+   ("USUARIO", "PROYECTO", "CUENTAS CONTABLES"...). */
 const SAP_HEADER_MAP: Record<string, keyof RegistroRow> = {
+  // SAP
   "creado por": "usuario",
   "cta.mayor": "cuentas_contables",
   "ctamayor": "cuentas_contables",
@@ -96,6 +99,35 @@ const SAP_HEADER_MAP: Record<string, keyof RegistroRow> = {
   "pedida": "cantidad",
   "precvalorac/por": "valor_uni",
   "precvaloracpor": "valor_uni",
+  // Sistema (labels propios)
+  "usuario": "usuario",
+  "proyecto": "proyecto",
+  "agrupacion": "agrupacion",
+  "agrupación": "agrupacion",
+  "cuentas contables": "cuentas_contables",
+  "cuenta contable": "cuentas_contables",
+  "fecha de solped": "fecha_solped",
+  "fecha solped": "fecha_solped",
+  "numero solped": "numero_solped",
+  "número solped": "numero_solped",
+  "nro solped": "numero_solped",
+  "n° solped": "numero_solped",
+  "pos solped": "pos_solped",
+  "os / ceco": "os_ceco",
+  "os/ceco": "os_ceco",
+  "os ceco": "os_ceco",
+  "ceco": "os_ceco",
+  "descripcion": "descripcion",
+  "descripción": "descripcion",
+  "moneda": "moneda",
+  "cantidad": "cantidad",
+  "valor uni.": "valor_uni",
+  "valor uni": "valor_uni",
+  "valor unitario": "valor_uni",
+  "precio": "valor_uni",
+  "referencia": "referencia",
+  "proveedor": "proveedor",
+  "motivo": "motivo",
 };
 
 const SEMAFORO_META: Record<string, { label: string; cls: string }> = {
