@@ -27,6 +27,7 @@ import {
   Cog,
   Mountain,
   LineChart,
+  Car,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -59,6 +60,11 @@ const navigationItems: NavItem[] = [
       { title: "Presupuestos", icon: BarChart3, href: "/presupuestos" },
       { title: "Dashboard Ejecutivo", icon: TrendingUp, href: "/solpeds/dashboard" },
     ],
+  },
+  {
+    title: "Taxis",
+    icon: Car,
+    href: "/taxis",
   },
   {
     title: "KPI",
