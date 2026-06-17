@@ -31,6 +31,7 @@ import SolpedAprobaciones from "./pages/SolpedAprobaciones";
 import Presupuestos from "./pages/Presupuestos";
 import SolpedDashboard from "./pages/SolpedDashboard";
 import Taxis from "./pages/Taxis";
+import Tiny from "./pages/Tiny";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { cn } from "@/lib/utils";
