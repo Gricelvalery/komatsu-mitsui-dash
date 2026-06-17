@@ -28,6 +28,7 @@ import {
   Mountain,
   LineChart,
   Car,
+  Scan,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -65,6 +66,11 @@ const navigationItems: NavItem[] = [
     title: "Taxis",
     icon: Car,
     href: "/taxis",
+  },
+  {
+    title: "Tiny",
+    icon: Scan,
+    href: "/tiny",
   },
   {
     title: "KPI",
