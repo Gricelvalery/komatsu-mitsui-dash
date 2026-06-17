@@ -67,6 +67,11 @@ const navigationItems: NavItem[] = [
     href: "/taxis",
   },
   {
+    title: "Tiny",
+    icon: Scan,
+    href: "/tiny",
+  },
+  {
     title: "KPI",
     icon: TrendingUp,
     children: [
