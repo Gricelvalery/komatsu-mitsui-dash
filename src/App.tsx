@@ -32,6 +32,7 @@ import Presupuestos from "./pages/Presupuestos";
 import SolpedDashboard from "./pages/SolpedDashboard";
 import Taxis from "./pages/Taxis";
 import Tiny from "./pages/Tiny";
+import Organigrama from "./pages/Organigrama";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { cn } from "@/lib/utils";
@@ -82,6 +83,7 @@ const App = () => {
                     <Route path="/solpeds" element={<><DashboardHeader title="SOLPEDs" /><SolpedsGrid /></>} />
                     <Route path="/taxis" element={<><DashboardHeader title="Gestión de Taxis" /><Taxis /></>} />
                     <Route path="/tiny" element={<><DashboardHeader title="Tiny - Control de Herramientas" /><Tiny /></>} />
+                    <Route path="/organigrama" element={<><DashboardHeader title="Organigrama" /><Organigrama /></>} />
                     <Route path="/solpeds/aprobaciones" element={<ProtectedRoute><><DashboardHeader title="SOLPEDs - Aprobaciones" /><SolpedAprobaciones /></></ProtectedRoute>} />
                     <Route path="/solpeds/dashboard" element={<ProtectedRoute><><DashboardHeader title="SOLPEDs - Dashboard Ejecutivo" /><SolpedDashboard /></></ProtectedRoute>} />
                     <Route path="/presupuestos" element={<ProtectedRoute><><DashboardHeader title="Presupuestos por Proyecto" /><Presupuestos /></></ProtectedRoute>} />
