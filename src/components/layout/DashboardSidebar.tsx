@@ -74,6 +74,11 @@ const navigationItems: NavItem[] = [
     href: "/tiny",
   },
   {
+    title: "Organigrama",
+    icon: Network,
+    href: "/organigrama",
+  },
+  {
     title: "KPI",
     icon: TrendingUp,
     children: [
