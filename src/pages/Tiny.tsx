@@ -8,8 +8,15 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Camera, CameraOff, Scan, RotateCcw, Package, ArrowRightLeft, Shirt, BarChart3, Plus, Minus } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Camera, CameraOff, Scan, RotateCcw, Package, ArrowRightLeft, Shirt, BarChart3, Plus, Minus, Boxes, FileDown, Mail } from "lucide-react";
 import { toast } from "sonner";
+import * as XLSX from "xlsx";
+import { supabase } from "@/integrations/supabase/client";
+
 
 // Catálogo de herramientas
 const TOOLS: Record<string, { name: string; ceco: string }> = {
