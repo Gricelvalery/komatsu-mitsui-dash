@@ -449,7 +449,12 @@ function SuministrosSection({ deliveries, setDeliveries }: { deliveries: Deliver
 
       <TabsContent value="historial">
         <Card>
-          <CardHeader><CardTitle>Historial de entregas ({deliveries.length})</CardTitle></CardHeader>
+          <CardHeader className="flex-row items-center justify-between space-y-0">
+            <CardTitle>Historial de entregas ({deliveries.length})</CardTitle>
+            <Button variant="outline" size="sm" onClick={exportHistorial} className="gap-2">
+              <FileDown className="w-4 h-4" /> Exportar Excel
+            </Button>
+          </CardHeader>
           <CardContent>
             <Table>
               <TableHeader><TableRow>
