@@ -71,11 +71,27 @@ interface Delivery {
   createdAt: string;
 }
 
+interface StockClose {
+  id: string;
+  mes: string; // YYYY-MM cerrado
+  createdAt: string;
+  lines: { code: string; name: string; unidad: string; stockAnterior: number; entregado: number; restante: number; agregado: number; nuevoStock: number }[];
+}
+
 const STORAGE_LOANS = "tiny_loans_v1";
 const STORAGE_DELIVERIES = "tiny_deliveries_v1";
+const STORAGE_STOCK = "tiny_stock_v1";
+const STORAGE_CLOSES = "tiny_stock_closes_v1";
+const STOCK_EMAIL = "gricel.mucha@kmmp.com.pe";
+
+const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+function mesLabel(ym: string) { const [y, m] = ym.split("-"); return `${MESES[parseInt(m, 10) - 1]} ${y}`; }
+function prevMonth(ym: string) { const d = new Date(`${ym}-01T00:00:00`); d.setMonth(d.getMonth() - 1); return d.toISOString().slice(0, 7); }
 
 function load<T>(k: string): T[] { try { return JSON.parse(localStorage.getItem(k) || "[]"); } catch { return []; } }
 function save<T>(k: string, v: T[]) { localStorage.setItem(k, JSON.stringify(v)); }
+function loadObj<T>(k: string, def: T): T { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : def; } catch { return def; } }
+
 
 function Scanner({ onDetected, label }: { onDetected: (code: string) => void; label: string }) {
   const [active, setActive] = useState(false);
