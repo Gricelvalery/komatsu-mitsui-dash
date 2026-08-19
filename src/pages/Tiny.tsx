@@ -8,8 +8,15 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Camera, CameraOff, Scan, RotateCcw, Package, ArrowRightLeft, Shirt, BarChart3, Plus, Minus } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Camera, CameraOff, Scan, RotateCcw, Package, ArrowRightLeft, Shirt, BarChart3, Plus, Minus, Boxes, FileDown, Mail } from "lucide-react";
 import { toast } from "sonner";
+import * as XLSX from "xlsx";
+import { supabase } from "@/integrations/supabase/client";
+
 
 // Catálogo de herramientas
 const TOOLS: Record<string, { name: string; ceco: string }> = {
@@ -64,11 +71,27 @@ interface Delivery {
   createdAt: string;
 }
 
+interface StockClose {
+  id: string;
+  mes: string; // YYYY-MM cerrado
+  createdAt: string;
+  lines: { code: string; name: string; unidad: string; stockAnterior: number; entregado: number; restante: number; agregado: number; nuevoStock: number }[];
+}
+
 const STORAGE_LOANS = "tiny_loans_v1";
 const STORAGE_DELIVERIES = "tiny_deliveries_v1";
+const STORAGE_STOCK = "tiny_stock_v1";
+const STORAGE_CLOSES = "tiny_stock_closes_v1";
+const STOCK_EMAIL = "gricel.mucha@kmmp.com.pe";
+
+const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+function mesLabel(ym: string) { const [y, m] = ym.split("-"); return `${MESES[parseInt(m, 10) - 1]} ${y}`; }
+function prevMonth(ym: string) { const d = new Date(`${ym}-01T00:00:00`); d.setMonth(d.getMonth() - 1); return d.toISOString().slice(0, 7); }
 
 function load<T>(k: string): T[] { try { return JSON.parse(localStorage.getItem(k) || "[]"); } catch { return []; } }
 function save<T>(k: string, v: T[]) { localStorage.setItem(k, JSON.stringify(v)); }
+function loadObj<T>(k: string, def: T): T { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : def; } catch { return def; } }
+
 
 function Scanner({ onDetected, label }: { onDetected: (code: string) => void; label: string }) {
   const [active, setActive] = useState(false);
@@ -342,13 +365,44 @@ function SuministrosSection({ deliveries, setDeliveries }: { deliveries: Deliver
     return Array.from(map.values()).sort((a, b) => b.veces - a.veces);
   }, [deliveries, currentMonth]);
 
+  const exportHistorial = () => {
+    if (deliveries.length === 0) { toast.error("No hay entregas para exportar"); return; }
+    const rows = deliveries.map((d) => ({
+      Fecha: new Date(d.createdAt).toLocaleString(),
+      Mes: d.createdAt.slice(0, 7),
+      Código: d.supplyCode,
+      Suministro: d.supplyName,
+      Cantidad: d.cantidad,
+      Unidad: d.unidad,
+      DNI: d.dni,
+      Colaborador: d.userName,
+      CECO: d.userCeco,
+    }));
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws["!cols"] = [{ wch: 20 }, { wch: 10 }, { wch: 16 }, { wch: 24 }, { wch: 10 }, { wch: 8 }, { wch: 12 }, { wch: 22 }, { wch: 24 }];
+    XLSX.utils.book_append_sheet(wb, ws, "Historial entregas");
+
+    const resumen = monthlyBySupply.map(([name, total]) => ({ Suministro: name, "Cantidad total": total }));
+    if (resumen.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(resumen), `Resumen ${currentMonth}`);
+
+    XLSX.writeFile(wb, `historial_entregas_suministros_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    toast.success("Excel exportado");
+  };
+
   return (
     <Tabs defaultValue="entrega" className="mt-4">
       <TabsList>
         <TabsTrigger value="entrega"><Package className="w-4 h-4 mr-2" />Entrega</TabsTrigger>
         <TabsTrigger value="historial"><ArrowRightLeft className="w-4 h-4 mr-2" />Historial</TabsTrigger>
         <TabsTrigger value="resumen"><BarChart3 className="w-4 h-4 mr-2" />Resumen mensual</TabsTrigger>
+        <TabsTrigger value="stock"><Boxes className="w-4 h-4 mr-2" />Stock</TabsTrigger>
       </TabsList>
+
+      <TabsContent value="stock">
+        <StockSection deliveries={deliveries} onExport={exportHistorial} />
+      </TabsContent>
+
 
       <TabsContent value="entrega" className="space-y-4">
         <Card>
@@ -395,7 +449,12 @@ function SuministrosSection({ deliveries, setDeliveries }: { deliveries: Deliver
 
       <TabsContent value="historial">
         <Card>
-          <CardHeader><CardTitle>Historial de entregas ({deliveries.length})</CardTitle></CardHeader>
+          <CardHeader className="flex-row items-center justify-between space-y-0">
+            <CardTitle>Historial de entregas ({deliveries.length})</CardTitle>
+            <Button variant="outline" size="sm" onClick={exportHistorial} className="gap-2">
+              <FileDown className="w-4 h-4" /> Exportar Excel
+            </Button>
+          </CardHeader>
           <CardContent>
             <Table>
               <TableHeader><TableRow>
@@ -469,5 +528,143 @@ function SuministrosSection({ deliveries, setDeliveries }: { deliveries: Deliver
         </Card>
       </TabsContent>
     </Tabs>
+  );
+}
+
+/* ============== STOCK MENSUAL ============== */
+function StockSection({ deliveries, onExport }: { deliveries: Delivery[]; onExport: () => void }) {
+  const [stock, setStock] = useState<Record<string, number>>(() => loadObj(STORAGE_STOCK, {} as Record<string, number>));
+  const [closes, setCloses] = useState<StockClose[]>(load<StockClose>(STORAGE_CLOSES));
+  const [adicional, setAdicional] = useState<Record<string, number>>({});
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [sending, setSending] = useState(false);
+
+  useEffect(() => { localStorage.setItem(STORAGE_STOCK, JSON.stringify(stock)); }, [stock]);
+  useEffect(() => { save(STORAGE_CLOSES, closes); }, [closes]);
+
+  const today = new Date();
+  const isDay1 = today.getDate() === 1;
+  const currentMonth = today.toISOString().slice(0, 7);
+  const mesCerrado = prevMonth(currentMonth);
+  const yaCerrado = closes.some((c) => c.mes === mesCerrado);
+
+  const lines = useMemo(() => Object.entries(SUPPLIES).map(([code, s]) => {
+    const stockAnterior = stock[code] || 0;
+    const entregado = deliveries.filter((d) => d.supplyCode === code && d.createdAt.slice(0, 7) === mesCerrado)
+      .reduce((a, d) => a + d.cantidad, 0);
+    const restante = stockAnterior - entregado;
+    const agregado = adicional[code] || 0;
+    return { code, name: s.name, unidad: s.unidad, stockAnterior, entregado, restante, agregado, nuevoStock: restante + agregado };
+  }), [stock, deliveries, adicional, mesCerrado]);
+
+  const actualizar = async () => {
+    setSending(true);
+    const nuevoStock: Record<string, number> = {};
+    lines.forEach((l) => { nuevoStock[l.code] = l.nuevoStock; });
+    setStock(nuevoStock);
+    setCloses([{ id: crypto.randomUUID(), mes: mesCerrado, createdAt: new Date().toISOString(), lines }, ...closes]);
+    setAdicional({});
+    setConfirmOpen(false);
+
+    try {
+      const { error } = await supabase.functions.invoke("send-stock-report", {
+        body: { to: STOCK_EMAIL, mes: mesLabel(mesCerrado), lines },
+      });
+      if (error) throw error;
+      toast.success(`Stock actualizado y correo enviado a ${STOCK_EMAIL}`);
+    } catch (e: any) {
+      toast.error("Stock actualizado, pero no se pudo enviar el correo: " + (e?.message || e));
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6 mt-4">
+      <Card>
+        <CardHeader className="flex-row items-center justify-between space-y-0">
+          <div>
+            <CardTitle>Actualización de stock — cierre de {mesLabel(mesCerrado)}</CardTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              {isDay1 ? "Hoy es día 1: corresponde actualizar el stock." : "La actualización corresponde el día 1 de cada mes."}
+              {yaCerrado && " · Este mes ya fue cerrado."}
+            </p>
+          </div>
+          <Button variant="outline" size="sm" onClick={onExport} className="gap-2">
+            <FileDown className="w-4 h-4" /> Exportar historial
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Table>
+            <TableHeader><TableRow>
+              <TableHead>Suministro</TableHead>
+              <TableHead className="text-right">Stock inicial</TableHead>
+              <TableHead className="text-right">Entregado</TableHead>
+              <TableHead className="text-right">Restante</TableHead>
+              <TableHead className="text-right w-40">Adicional</TableHead>
+              <TableHead className="text-right">Nuevo stock</TableHead>
+            </TableRow></TableHeader>
+            <TableBody>
+              {lines.map((l) => (
+                <TableRow key={l.code}>
+                  <TableCell className="font-medium">{l.name}</TableCell>
+                  <TableCell className="text-right">
+                    <Input type="number" min={0} value={l.stockAnterior} className="h-8 w-24 ml-auto text-right"
+                      onChange={(e) => setStock({ ...stock, [l.code]: Math.max(0, parseInt(e.target.value) || 0) })} />
+                  </TableCell>
+                  <TableCell className="text-right">{l.entregado}</TableCell>
+                  <TableCell className="text-right"><Badge variant={l.restante < 0 ? "destructive" : "secondary"}>{l.restante}</Badge></TableCell>
+                  <TableCell className="text-right">
+                    <Input type="number" min={0} value={adicional[l.code] ?? 0} className="h-8 w-24 ml-auto text-right"
+                      onChange={(e) => setAdicional({ ...adicional, [l.code]: Math.max(0, parseInt(e.target.value) || 0) })} />
+                  </TableCell>
+                  <TableCell className="text-right font-semibold">{l.nuevoStock} {l.unidad}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <Button onClick={() => setConfirmOpen(true)} disabled={sending} className="gap-2">
+            <Mail className="w-4 h-4" /> Actualizar stock y notificar
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle>Cierres registrados ({closes.length})</CardTitle></CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader><TableRow>
+              <TableHead>Mes cerrado</TableHead><TableHead>Fecha de actualización</TableHead><TableHead className="text-right">Stock restante total</TableHead>
+            </TableRow></TableHeader>
+            <TableBody>
+              {closes.length === 0 ? (
+                <TableRow><TableCell colSpan={3} className="text-center text-muted-foreground">Sin cierres</TableCell></TableRow>
+              ) : closes.map((c) => (
+                <TableRow key={c.id}>
+                  <TableCell className="font-medium">{mesLabel(c.mes)}</TableCell>
+                  <TableCell>{new Date(c.createdAt).toLocaleString()}</TableCell>
+                  <TableCell className="text-right">{c.lines.reduce((a, l) => a + l.restante, 0)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Actualizar stock de {mesLabel(mesCerrado)}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Se cerrará el mes con el stock restante, se sumará lo adicional y se enviará el resumen a {STOCK_EMAIL}. Esta acción no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={actualizar}>Confirmar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 }
