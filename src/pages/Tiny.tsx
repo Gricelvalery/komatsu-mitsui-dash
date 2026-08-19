@@ -365,13 +365,44 @@ function SuministrosSection({ deliveries, setDeliveries }: { deliveries: Deliver
     return Array.from(map.values()).sort((a, b) => b.veces - a.veces);
   }, [deliveries, currentMonth]);
 
+  const exportHistorial = () => {
+    if (deliveries.length === 0) { toast.error("No hay entregas para exportar"); return; }
+    const rows = deliveries.map((d) => ({
+      Fecha: new Date(d.createdAt).toLocaleString(),
+      Mes: d.createdAt.slice(0, 7),
+      Código: d.supplyCode,
+      Suministro: d.supplyName,
+      Cantidad: d.cantidad,
+      Unidad: d.unidad,
+      DNI: d.dni,
+      Colaborador: d.userName,
+      CECO: d.userCeco,
+    }));
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws["!cols"] = [{ wch: 20 }, { wch: 10 }, { wch: 16 }, { wch: 24 }, { wch: 10 }, { wch: 8 }, { wch: 12 }, { wch: 22 }, { wch: 24 }];
+    XLSX.utils.book_append_sheet(wb, ws, "Historial entregas");
+
+    const resumen = monthlyBySupply.map(([name, total]) => ({ Suministro: name, "Cantidad total": total }));
+    if (resumen.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(resumen), `Resumen ${currentMonth}`);
+
+    XLSX.writeFile(wb, `historial_entregas_suministros_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    toast.success("Excel exportado");
+  };
+
   return (
     <Tabs defaultValue="entrega" className="mt-4">
       <TabsList>
         <TabsTrigger value="entrega"><Package className="w-4 h-4 mr-2" />Entrega</TabsTrigger>
         <TabsTrigger value="historial"><ArrowRightLeft className="w-4 h-4 mr-2" />Historial</TabsTrigger>
         <TabsTrigger value="resumen"><BarChart3 className="w-4 h-4 mr-2" />Resumen mensual</TabsTrigger>
+        <TabsTrigger value="stock"><Boxes className="w-4 h-4 mr-2" />Stock</TabsTrigger>
       </TabsList>
+
+      <TabsContent value="stock">
+        <StockSection deliveries={deliveries} onExport={exportHistorial} />
+      </TabsContent>
+
 
       <TabsContent value="entrega" className="space-y-4">
         <Card>
